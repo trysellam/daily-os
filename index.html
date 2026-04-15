@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Daily OS — The Systems Circle</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#0F6E56;--pl:#E1F5EE;--pd:#085041;
+  --ac:#EF9F27;--al:#FAEEDA;
+  --tx:#1C1C1A;--tm:#6B6B67;
+  --bd:rgba(0,0,0,0.08);--bdh:rgba(0,0,0,0.15);
+  --bg:#FAFAF8;--card:#fff;
+  --ok:#1D9E75;--r:12px;--rs:8px
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);font-size:16px;line-height:1.6}
+a{color:var(--p);text-decoration:none}
+.screen{display:none}
+.screen.active{display:block;min-height:100vh}
+#screen-auth.active{display:flex;align-items:center;justify-content:center;padding:40px 24px;min-height:100vh}
+#screen-generating.active{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:100vh}
+#screen-ob-complete.active{display:flex;align-items:center;justify-content:center;padding:40px 24px;min-height:100vh}
+#screen-onboarding.active{display:flex;flex-direction:column;min-height:100vh}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:var(--rs);font-size:15px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}.btn-p:disabled{opacity:.6;cursor:not-allowed}
+.btn-o{background:transparent;color:var(--tx);border:1px solid var(--bdh)}.btn-o:hover{border-color:var(--p);color:var(--p)}
+.btn-sm{padding:8px 16px;font-size:14px}.btn-full{width:100%}
+
+/* LANDING */
+.ln{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;max-width:1100px;margin:0 auto}
+.logo{font-size:18px;font-weight:500}.logo span{color:var(--p)}
+.ln-r{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--tm)}
+.hero{max-width:640px;margin:80px auto 80px;text-align:center;padding:0 24px}
+.tag{display:inline-block;background:var(--pl);color:var(--p);font-size:13px;font-weight:500;padding:4px 14px;border-radius:20px;margin-bottom:24px}
+.hero h1{font-size:46px;font-weight:500;line-height:1.15;margin-bottom:20px;letter-spacing:-.5px}
+.hero p{font-size:18px;color:var(--tm);line-height:1.7;margin-bottom:36px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.feats{max-width:900px;margin:0 auto 80px;padding:0 24px}
+.feats-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.feat{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:28px}
+.feat-ic{width:38px;height:38px;background:var(--pl);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--p);font-size:16px}
+.feat h3{font-size:16px;font-weight:500;margin-bottom:8px}
+.feat p{font-size:14px;color:var(--tm);line-height:1.6}
+.steps-s{max-width:620px;margin:0 auto 80px;padding:0 24px;text-align:center}
+.steps-s h2{font-size:28px;font-weight:500;margin-bottom:48px}
+.steps-l{display:flex;flex-direction:column;gap:28px;text-align:left}
+.step{display:flex;gap:20px;align-items:flex-start}
+.step-n{width:32px;height:32px;border-radius:50%;background:var(--p);color:#fff;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step h4{font-size:16px;font-weight:500;margin-bottom:4px}
+.step p{font-size:14px;color:var(--tm)}
+.lft{border-top:1px solid var(--bd);padding:24px;text-align:center;font-size:13px;color:var(--tm)}
+
+/* AUTH */
+.ac{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:40px;width:100%;max-width:420px}
+.ac .logo{margin-bottom:6px}
+.ac-tag{font-size:14px;color:var(--tm);margin-bottom:28px}
+.a-tabs{display:flex;margin-bottom:24px;border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden}
+.a-tab{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:500;cursor:pointer;background:transparent;border:none;color:var(--tm);transition:all .15s;font-family:inherit}
+.a-tab.on{background:var(--p);color:#fff}
+.a-form{display:flex;flex-direction:column;gap:14px}
+.a-form input{width:100%;padding:11px 14px;border:1px solid var(--bd);border-radius:var(--rs);font-size:15px;outline:none;background:var(--bg);color:var(--tx);font-family:inherit;transition:border-color .15s}
+.a-form input:focus{border-color:var(--p)}
+.a-form input::placeholder{color:#bbb}
+.a-err{font-size:13px;color:#dc2626;padding:10px 14px;background:#fef2f2;border-radius:var(--rs);display:none;margin-bottom:2px}
+.a-link{text-align:center;font-size:14px;color:var(--tm);margin-top:16px}
+
+/* ONBOARDING */
+.ob-hd{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);background:var(--card)}
+.ob-pt{font-size:13px;color:var(--tm)}
+.ob-body{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px}
+.ob-step{max-width:580px;width:100%}
+.ob-sn{font-size:12px;font-weight:500;color:var(--p);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.ob-step h2{font-size:28px;font-weight:500;line-height:1.35;margin-bottom:10px}
+.ob-hint{font-size:15px;color:var(--tm);margin-bottom:24px;line-height:1.6}
+.ob-step textarea{width:100%;min-height:160px;padding:16px;border:1px solid var(--bd);border-radius:var(--r);font-size:16px;line-height:1.6;resize:vertical;outline:none;background:var(--card);color:var(--tx);font-family:inherit;transition:border-color .15s}
+.ob-step textarea:focus{border-color:var(--p)}
+.ob-step textarea::placeholder{color:#bbb}
+.ob-ni{width:100%;padding:14px 16px;border:1px solid var(--bd);border-radius:var(--r);font-size:20px;outline:none;background:var(--card);color:var(--tx);font-family:inherit;transition:border-color .15s}
+.ob-ni:focus{border-color:var(--p)}
+.ob-ft{padding:20px 40px;border-top:1px solid var(--bd);background:var(--card);display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ob-pb{flex:1;height:4px;background:var(--bd);border-radius:2px;overflow:hidden}
+.ob-pf{height:100%;background:var(--p);border-radius:2px;transition:width .4s}
+
+/* GENERATING */
+.g-spin{width:48px;height:48px;border:3px solid var(--pl);border-top-color:var(--p);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.g-tx{font-size:18px;font-weight:500;text-align:center}
+.g-sub{font-size:14px;color:var(--tm);text-align:center}
+
+/* REVIEW SCREENS */
+.rv{max-width:660px;width:100%;margin:0 auto;padding:40px 24px}
+.rv-bk{font-size:14px;color:var(--tm);cursor:pointer;margin-bottom:24px;display:inline-flex;align-items:center;gap:6px;background:none;border:none;font-family:inherit}
+.rv-bk:hover{color:var(--p)}
+.rv h2{font-size:26px;font-weight:500;margin-bottom:8px}
+.rv-sub{font-size:15px;color:var(--tm);margin-bottom:28px;line-height:1.6}
+.vc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:32px;margin-bottom:16px}
+.vc p{font-size:16px;line-height:1.85;color:var(--tx);margin-bottom:16px}
+.vc p:last-child{margin-bottom:0}
+.v-edit{width:100%;min-height:220px;padding:16px;border:1px solid var(--bd);border-radius:var(--r);font-size:15px;line-height:1.7;resize:vertical;outline:none;background:var(--card);color:var(--tx);font-family:inherit;display:none;margin-bottom:16px}
+.v-edit:focus{border-color:var(--p)}
+.v-tog{font-size:14px;color:var(--p);cursor:pointer;display:inline-block;margin-bottom:20px;background:none;border:none;font-family:inherit;font-weight:500}
+.bg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+.bc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:border-color .15s}
+.bc.anc{border-color:var(--p);background:var(--pl)}
+.b-dom{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--tm);margin-bottom:8px}
+.bc.anc .b-dom{color:var(--p)}
+.b-badge{display:inline-flex;font-size:11px;background:var(--p);color:#fff;padding:2px 10px;border-radius:10px;margin-bottom:10px}
+.b-title{font-size:15px;font-weight:500;margin-bottom:6px;outline:none;border:none;background:transparent;color:var(--tx);font-family:inherit;width:100%;resize:none}
+.b-desc{font-size:13px;color:var(--tm);line-height:1.5;outline:none;border:none;background:transparent;font-family:inherit;width:100%;resize:none}
+.as{margin-bottom:24px}
+.as-lbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--tm);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+.ar{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.ar:last-child{border-bottom:none}
+.ar-n{font-size:12px;color:var(--tm);min-width:20px;padding-top:3px}
+.ar-ta{flex:1;font-size:14px;line-height:1.5;outline:none;border:none;background:transparent;color:var(--tx);font-family:inherit;resize:none;padding:0}
+.atg{font-size:10px;padding:2px 8px;border-radius:10px;flex-shrink:0}
+.tg-f{background:#E6F1FB;color:#185FA5}
+.tg-w{background:var(--al);color:#854F0B}
+.tg-h{background:var(--pl);color:var(--pd)}
+
+/* OB COMPLETE */
+.ob-done{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:48px;text-align:center;max-width:460px;width:100%}
+.od-ic{width:64px;height:64px;border-radius:50%;background:var(--pl);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--p);font-size:26px;font-weight:500}
+.ob-done h2{font-size:26px;font-weight:500;margin-bottom:12px}
+.ob-done p{font-size:15px;color:var(--tm);margin-bottom:28px;line-height:1.65}
+
+/* DASHBOARD */
+.dn{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--card);border-bottom:1px solid var(--bd)}
+.dn-r{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--tm)}
+.so{font-size:13px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px}
+.so:hover{background:var(--bg);color:var(--tx)}
+.di{max-width:660px;margin:0 auto;padding:24px 20px 60px}
+.d-dt{font-size:13px;color:var(--tm);margin-bottom:4px}
+.d-gr{font-size:22px;font-weight:500;margin-bottom:24px}
+.sc-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.sc{background:var(--card);border:1px solid var(--bd);border-radius:var(--rs);padding:14px 16px}
+.sc-l{font-size:12px;color:var(--tm);margin-bottom:4px}
+.sc-v{font-size:22px;font-weight:500}
+.sc-s{font-size:11px;color:var(--tm);margin-top:2px}
+.pb{margin-bottom:24px}
+.pb-l{display:flex;justify-content:space-between;font-size:13px;color:var(--tm);margin-bottom:8px}
+.pb-bg{height:6px;background:var(--bd);border-radius:3px;overflow:hidden}
+.pb-f{height:100%;background:var(--ok);border-radius:3px;transition:width .3s}
+.sh{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--tm);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.al{margin-bottom:20px;display:flex;flex-direction:column;gap:6px}
+.ai{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border:1px solid var(--bd);border-radius:var(--rs);cursor:pointer;transition:all .15s;user-select:none}
+.ai:hover{border-color:var(--bdh)}
+.ai.ck{background:var(--pl);border-color:var(--p)}
+.ci{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--bdh);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ai.ck .ci{background:var(--ok);border-color:var(--ok)}
+.ck-i{width:8px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px);display:none}
+.ai.ck .ck-i{display:block}
+.ai-lbl{flex:1;font-size:14px;color:var(--tx);line-height:1.4}
+.ai.ck .ai-lbl{color:var(--tm)}
+.ap{font-size:10px;padding:2px 8px;border-radius:10px;flex-shrink:0}
+.wkw{margin-bottom:24px}
+.wkc{position:relative;height:180px}
+.mow{margin-bottom:24px}
+.mod{display:flex;flex-wrap:wrap;gap:5px}
+.md{width:24px;height:24px;border-radius:4px;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--tm)}
+.md.done{background:var(--ok);color:#fff}
+.md.part{background:#FAC775;color:#633806}
+.md.today{outline:2px solid var(--p);outline-offset:1px}
+.dft{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.st-i{font-size:14px;color:var(--tm)}
+.st-n{font-size:18px;font-weight:500;color:var(--tx)}
+.rst{font-size:13px;color:var(--tm);background:none;border:1px solid var(--bd);border-radius:var(--rs);padding:6px 14px;cursor:pointer;font-family:inherit}
+.rst:hover{border-color:var(--bdh);color:var(--tx)}
+
+@media(max-width:600px){
+  .hero h1{font-size:34px}
+  .ln,.ob-hd,.ob-ft{padding:16px 20px}
+  .sc-v{font-size:18px}
+  .bg{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="screen-landing" class="screen active">
+  <nav class="ln">
+    <div class="logo">The Daily <span>OS</span></div>
+    <div class="ln-r">
+      <span>A Systems Circle product</span>
+      <button class="btn btn-o btn-sm" onclick="showScreen('auth');showTab('signin')">Sign in</button>
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="tag">The Systems Circle</div>
+    <h1>Stop reacting.<br>Start operating.</h1>
+    <p>Build your life vision, lock in your daily non-negotiables, and track your consistency — one deliberate day at a time.</p>
+    <div class="cta">
+      <button class="btn btn-p" onclick="showScreen('auth');showTab('signup')">Build my Daily OS</button>
+      <button class="btn btn-o" onclick="showScreen('auth');showTab('signin')">Sign in</button>
+    </div>
+  </section>
+  <section class="feats">
+    <div class="feats-g">
+      <div class="feat"><div class="feat-ic">○</div><h3>Vision-first</h3><p>Built around your life, not your task list. Your vision drives every non-negotiable.</p></div>
+      <div class="feat"><div class="feat-ic">✦</div><h3>AI-powered setup</h3><p>7 questions. A fully personalised vision, BHAGs, and 11 daily activities built around your answers.</p></div>
+      <div class="feat"><div class="feat-ic">▲</div><h3>Daily accountability</h3><p>11 non-negotiables. One honest score. Your consistency tracked daily, weekly, and monthly.</p></div>
+    </div>
+  </section>
+  <section class="steps-s">
+    <h2>How it works</h2>
+    <div class="steps-l">
+      <div class="step"><div class="step-n">1</div><div><h4>Build your vision</h4><p>Answer 7 questions about your life. We generate your vision statement, BHAGs, and 11 daily activities — tailored specifically to your answers.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div><h4>Track your day</h4><p>Check off your 11 non-negotiables as you complete them. See your score update in real time.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div><h4>Watch your consistency</h4><p>Daily, weekly, and monthly performance data. Your streak grows every day you hit 8 or more out of 11.</p></div></div>
+    </div>
+  </section>
+  <footer class="lft">The Daily OS is a free product by <a href="https://thesystemscircle.com" target="_blank">The Systems Circle</a></footer>
+</div>
+
+<!-- AUTH -->
+<div id="screen-auth" class="screen">
+  <div class="ac">
+    <div class="logo">The Daily <span>OS</span></div>
+    <div class="ac-tag">Your life, operating with intention.</div>
+    <div class="a-tabs">
+      <button class="a-tab on" id="tab-signup" onclick="showTab('signup')">Create account</button>
+      <button class="a-tab" id="tab-signin" onclick="showTab('signin')">Sign in</button>
+    </div>
+    <div id="a-err" class="a-err"></div>
+    <div id="f-signup" class="a-form">
+      <input type="text" id="su-name" placeholder="Your full name" autocomplete="name">
+      <input type="email" id="su-email" placeholder="Email address" autocomplete="email">
+      <input type="password" id="su-pw" placeholder="Password (min 8 characters)" autocomplete="new-password">
+      <button class="btn btn-p btn-full" id="su-btn" onclick="doSignUp()">Create account</button>
+    </div>
+    <div id="f-signin" class="a-form" style="display:none">
+      <input type="email" id="si-email" placeholder="Email address" autocomplete="email">
+      <input type="password" id="si-pw" placeholder="Password" autocomplete="current-password">
+      <button class="btn btn-p btn-full" id="si-btn" onclick="doSignIn()">Sign in</button>
+    </div>
+    <div class="a-link"><a href="#" onclick="showScreen('landing');return false">← Back to home</a></div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="screen-onboarding" class="screen">
+  <div class="ob-hd">
+    <div class="logo">The Daily <span>OS</span></div>
+    <div class="ob-pt" id="ob-pt">Getting started</div>
+  </div>
+  <div class="ob-body" id="ob-body"></div>
+  <div class="ob-ft">
+    <button class="btn btn-o" id="ob-bk" onclick="obBack()" style="visibility:hidden">Back</button>
+    <div class="ob-pb"><div class="ob-pf" id="ob-pf" style="width:0%"></div></div>
+    <button class="btn btn-p" id="ob-nx" onclick="obNext()">Next</button>
+  </div>
+</div>
+
+<!-- GENERATING -->
+<div id="screen-generating" class="screen">
+  <div class="g-spin"></div>
+  <div class="g-tx" id="g-tx">Reading your answers...</div>
+  <div class="g-sub">This takes about 20 seconds. Please stay on this page.</div>
+</div>
+
+<!-- VISION REVIEW -->
+<div id="screen-vision-review" class="screen">
+  <div class="rv">
+    <button class="rv-bk" onclick="showScreen('onboarding');obGoBack()">← Back</button>
+    <h2>Your vision statement</h2>
+    <p class="rv-sub">We built this from your answers. Read it slowly. Edit anything that does not feel right.</p>
+    <div class="vc" id="v-disp"></div>
+    <button class="v-tog" id="v-tog" onclick="toggleVEdit()">Edit vision</button>
+    <textarea class="v-edit" id="v-edit"></textarea>
+    <button class="btn btn-p btn-full" onclick="confirmVision()">This is my vision →</button>
+  </div>
+</div>
+
+<!-- BHAGS REVIEW -->
+<div id="screen-bhags-review" class="screen">
+  <div class="rv">
+    <button class="rv-bk" onclick="showScreen('vision-review')">← Back</button>
+    <h2>Your BHAGs</h2>
+    <p class="rv-sub">Six big goals across your life domains. The two highlighted in green are your anchor BHAGs — they drive your daily activities. Click any text to edit.</p>
+    <div class="bg" id="b-grid"></div>
+    <button class="btn btn-p btn-full" onclick="confirmBhags()">These are my BHAGs →</button>
+  </div>
+</div>
+
+<!-- ACTIVITIES REVIEW -->
+<div id="screen-activities-review" class="screen">
+  <div class="rv">
+    <button class="rv-bk" onclick="showScreen('bhags-review')">← Back</button>
+    <h2>Your 11 daily activities</h2>
+    <p class="rv-sub">These are your non-negotiables. Click any activity to edit the text before locking them in.</p>
+    <div id="a-rev"></div>
+    <button class="btn btn-p btn-full" id="ca-btn" onclick="confirmActivities()">Lock in my activities →</button>
+  </div>
+</div>
+
+<!-- OB COMPLETE -->
+<div id="screen-ob-complete" class="screen">
+  <div class="ob-done">
+    <div class="od-ic">✓</div>
+    <h2>Your Daily OS is ready.</h2>
+    <p>Your vision is set. Your BHAGs are defined. Your 11 daily activities are locked in. Now it is time to operate.</p>
+    <button class="btn btn-p btn-full" onclick="startDash()">Start tracking today →</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="screen-dashboard" class="screen">
+  <nav class="dn">
+    <div class="logo">The Daily <span>OS</span></div>
+    <div class="dn-r"><span id="d-un"></span><button class="so" onclick="doSignOut()">Sign out</button></div>
+  </nav>
+  <div class="di">
+    <div class="d-dt" id="d-dt"></div>
+    <div class="d-gr" id="d-gr"></div>
+    <div class="sc-g">
+      <div class="sc"><div class="sc-l">Today</div><div class="sc-v" id="sc-t">0/11</div><div class="sc-s" id="sc-tp">0%</div></div>
+      <div class="sc"><div class="sc-l">This week</div><div class="sc-v" id="sc-w">0%</div><div class="sc-s">avg daily score</div></div>
+      <div class="sc"><div class="sc-l">This month</div><div class="sc-v" id="sc-m">0%</div><div class="sc-s">avg daily score</div></div>
+    </div>
+    <div class="pb">
+      <div class="pb-l"><span>Today's progress</span><span id="pb-lr">0 of 11 activities</span></div>
+      <div class="pb-bg"><div class="pb-f" id="pb-f" style="width:0%"></div></div>
+    </div>
+    <div id="d-aw"></div>
+    <div class="wkw"><div class="sh">Week at a glance</div><div class="wkc"><canvas id="wkChart"></canvas></div></div>
+    <div class="mow"><div class="sh">Month at a glance</div><div class="mod" id="m-dots"></div></div>
+    <div class="dft">
+      <div class="st-i">Streak: <span class="st-n" id="st-n">0</span> days</div>
+      <button class="rst" onclick="resetToday()">Reset today</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://gnnzxnolwuoreoutnxzr.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdubnp4bm9sd3VvcmVvdXRueHpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzU1MzcsImV4cCI6MjA5MTg1MTUzN30.xCzUtc6fFXMiBnamurVSW_AHfbsEOeZ1ZVaBeQwYRlo';
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+const S={user:null,profile:null,ob:{step:0,name:'',ans:new Array(7).fill(''),vision:'',bhags:[],ancIds:[],acts:[]},dash:{checked:[],acts:[],logs:{},chart:null}};
+
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function getWeek(){const r=[],t=new Date(),dow=t.getDay(),m=new Date(t);m.setDate(t.getDate()-((dow+6)%7));for(let i=0;i<7;i++){const d=new Date(m);d.setDate(m.getDate()+i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const fut=new Date(d).setHours(0,0,0,0)>new Date().setHours(0,0,0,0);r.push({key:k,name:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i],today:k===todayKey(),fut});}return r}
+function getMo(){const t=new Date(),y=t.getFullYear(),m=t.getMonth(),c=new Date(y,m+1,0).getDate(),r=[];for(let i=1;i<=c;i++){const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(i).padStart(2,'0');const fut=new Date(y,m,i).setHours(0,0,0,0)>new Date().setHours(0,0,0,0);r.push({key:k,day:i,today:k===todayKey(),fut});}return r}
+function showScreen(n){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById('screen-'+n);if(el)el.classList.add('active')}
+function $$(id){return document.getElementById(id)}
+
+// AUTH
+function showTab(t){$$('f-signup').style.display=t==='signup'?'flex':'none';$$('f-signin').style.display=t==='signin'?'flex':'none';$$('tab-signup').classList.toggle('on',t==='signup');$$('tab-signin').classList.toggle('on',t==='signin');$$('a-err').style.display='none'}
+function showErr(m){const e=$$('a-err');e.textContent=m;e.style.display='block'}
+async function doSignUp(){
+  const name=$$('su-name').value.trim(),email=$$('su-email').value.trim(),pw=$$('su-pw').value;
+  if(!name)return showErr('Please enter your name');
+  if(!email)return showErr('Please enter your email');
+  if(pw.length<8)return showErr('Password must be at least 8 characters');
+  const btn=$$('su-btn');btn.textContent='Creating...';btn.disabled=true;
+  const{data,error}=await sb.auth.signUp({email,password:pw});
+  btn.textContent='Create account';btn.disabled=false;
+  if(error)return showErr(error.message);
+  S.ob.name=name;
+  if(data.session){
+    S.user=data.user;
+    await sb.from('profiles').upsert({id:data.user.id,name,email,onboarding_complete:false});
+    S.profile={id:data.user.id,name,email,onboarding_complete:false};
+    showScreen('onboarding');renderOb();
+  }else{showErr('Check your email for a confirmation link, then sign in.')}
+}
+async function doSignIn(){
+  const email=$$('si-email').value.trim(),pw=$$('si-pw').value;
+  if(!email||!pw)return showErr('Please fill in all fields');
+  const btn=$$('si-btn');btn.textContent='Signing in...';btn.disabled=true;
+  const{data,error}=await sb.auth.signInWithPassword({email,password:pw});
+  btn.textContent='Sign in';btn.disabled=false;
+  if(error)return showErr(error.message);
+  S.user=data.user;S.profile=await loadProfile();
+  if(S.profile?.onboarding_complete){S.ob.name=S.profile.name;await initDash();showScreen('dashboard')}
+  else{S.ob.name=S.profile?.name||'';showScreen('onboarding');renderOb()}
+}
+async function doSignOut(){await sb.auth.signOut();S.user=null;S.profile=null;showScreen('landing')}
+
+// ONBOARDING
+const QS=[
+  {n:'Your future Tuesday',q:'When you picture your life 10 to 15 years from now, fully on your terms, what does a regular Tuesday look like?',h:'Where are you? What are you doing? Who is around you? How do you feel?',ph:'Describe the scene in as much detail as you can...'},
+  {n:'Your life domains',q:'What are the domains of your life that matter most to you?',h:'Think about work, family, faith, finances, health, relationships, legacy, community. Which feel most alive right now? Which feel most neglected?',ph:'List the domains and share how each feels right now...'},
+  {n:'Your reputation',q:'What do you want to be known for?',h:'Not your job title. The thing people say about you when you are not in the room.',ph:'When people talk about you, what do you want them to say?'},
+  {n:'Your impact',q:'What kind of impact do you want to have?',h:'On your family, your community, your industry, or the world. How wide or deep does that impact need to go?',ph:'Describe the change you want to create in the world...'},
+  {n:'Financial freedom',q:'What does financial freedom look like for you specifically?',h:'Not a number necessarily — a feeling, a lifestyle, a level of control and generosity.',ph:'Describe the financial life you are building towards...'},
+  {n:'Faith and spirituality',q:'What role does faith or spirituality play in your life?',h:'Is it a daily practice, a guiding force, a source of identity? How do you want to grow in it?',ph:'Share what faith means to you and how you want to deepen it...'},
+  {n:'The version you are leaving behind',q:'Is there a version of yourself you are determined to leave behind?',h:'Someone who played small, got distracted, or did not follow through. What does that look like?',ph:'Describe the version of yourself you are done being...'}
+];
+function renderOb(){
+  const s=S.ob.step,bk=$$('ob-bk'),nx=$$('ob-nx'),pf=$$('ob-pf'),pt=$$('ob-pt'),body=$$('ob-body');
+  if(s===0){
+    body.innerHTML=`<div class="ob-step"><div class="ob-sn">Let's begin</div><h2>What is your name?</h2><p class="ob-hint">We will use this to personalise your Daily OS.</p><input class="ob-ni" id="ob-ni" type="text" placeholder="Your first name" value="${S.ob.name}" autocomplete="given-name"></div>`;
+    bk.style.visibility='hidden';nx.textContent='Next';pf.style.width='0%';pt.textContent='Getting started';
+    const ni=$$('ob-ni');if(ni){ni.focus();ni.addEventListener('keydown',e=>{if(e.key==='Enter')obNext()})}
+  }else{
+    const q=QS[s-1];
+    body.innerHTML=`<div class="ob-step"><div class="ob-sn">Question ${s} of 7</div><h2>${q.q}</h2><p class="ob-hint">${q.h}</p><textarea id="ob-ta" placeholder="${q.ph}">${S.ob.ans[s-1]}</textarea></div>`;
+    bk.style.visibility='visible';nx.textContent=s===7?'Build my vision':'Next';
+    pf.style.width=Math.round((s/7)*100)+'%';pt.textContent='Question '+s+' of 7';
+    const ta=$$('ob-ta');if(ta)ta.focus();
+  }
+}
+function obNext(){
+  const s=S.ob.step;
+  if(s===0){
+    const ni=$$('ob-ni'),n=ni?ni.value.trim():'';
+    if(!n){if(ni)ni.style.borderColor='#dc2626';return}
+    S.ob.name=n;
+    if(S.user)sb.from('profiles').update({name:n}).eq('id',S.user.id).then(()=>{});
+    S.ob.step=1;renderOb();
+  }else{
+    const ta=$$('ob-ta'),a=ta?ta.value.trim():'';
+    if(!a){if(ta)ta.style.borderColor='#dc2626';return}
+    S.ob.ans[s-1]=a;
+    if(s===7)generateVision();else{S.ob.step++;renderOb()}
+  }
+}
+function obBack(){
+  if(S.ob.step>0){
+    if(S.ob.step>=1){const ta=$$('ob-ta');if(ta)S.ob.ans[S.ob.step-1]=ta.value}
+    S.ob.step--;renderOb();
+  }
+}
+function obGoBack(){S.ob.step=7;renderOb()}
+
+// AI GENERATION
+async function generateVision(){
+  showScreen('generating');
+  const msgs=['Reading your answers...','Building your vision statement...','Defining your BHAGs...','Crafting your activities...','Almost there...'];
+  let mi=0;const gtx=$$('g-tx');
+  const iv=setInterval(()=>{mi=(mi+1)%msgs.length;if(gtx)gtx.textContent=msgs[mi]},3500);
+  const sys=`You are a life vision architect who helps high-performing professionals build a structured life vision.
+Based on the user's 7 answers, return ONLY a valid JSON object — no preamble, no markdown, no explanation:
+{
+  "vision_statement": "2-4 paragraphs, first person, deeply personal — use specific details from their answers, reference what they are leaving behind",
+  "bhags": [
+    {"id":1,"title":"string","description":"1-2 sentences","domain":"work"},
+    {"id":2,"title":"string","description":"string","domain":"faith"},
+    {"id":3,"title":"string","description":"string","domain":"family"},
+    {"id":4,"title":"string","description":"string","domain":"finance"},
+    {"id":5,"title":"string","description":"string","domain":"health"},
+    {"id":6,"title":"string","description":"string","domain":"legacy"}
+  ],
+  "anchor_bhag_ids": [1,2],
+  "activities": [
+    {"id":1,"text":"string","category":"faith","tag":"faith"},
+    {"id":2,"text":"string","category":"faith","tag":"faith"},
+    {"id":3,"text":"string","category":"faith","tag":"faith"},
+    {"id":4,"text":"string","category":"work","tag":"work"},
+    {"id":5,"text":"string","category":"work","tag":"work"},
+    {"id":6,"text":"string","category":"work","tag":"work"},
+    {"id":7,"text":"string","category":"work","tag":"work"},
+    {"id":8,"text":"string","category":"work","tag":"work"},
+    {"id":9,"text":"string","category":"work","tag":"work"},
+    {"id":10,"text":"string","category":"health","tag":"health"},
+    {"id":11,"text":"string","category":"health","tag":"health"}
+  ]
+}
+Rules: vision must feel deeply personal; anchor_bhag_ids should be the 2 BHAGs with the most daily levers (usually faith + work/mission); activities must be specific daily non-negotiables; exactly 3 faith, 6 work, 2 health activities.`;
+  const usr=`My name is ${S.ob.name}.
+1. Ideal future Tuesday: ${S.ob.ans[0]}
+2. Life domains that matter: ${S.ob.ans[1]}
+3. What I want to be known for: ${S.ob.ans[2]}
+4. Impact I want to have: ${S.ob.ans[3]}
+5. Financial freedom looks like: ${S.ob.ans[4]}
+6. Faith and spirituality: ${S.ob.ans[5]}
+7. Version of myself I am leaving behind: ${S.ob.ans[6]}`;
+  try{
+    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:[{role:'user',content:usr}],max_tokens:2500})});
+    const data=await resp.json();clearInterval(iv);
+    const txt=data.content?.[0]?.text||'';
+    let p;
+    try{p=JSON.parse(txt.replace(/```json|```/g,'').trim())}
+    catch(e){console.error('Parse err:',e,txt);showScreen('onboarding');S.ob.step=7;renderOb();alert('Something went wrong. Please try again.');return}
+    S.ob.vision=p.vision_statement;S.ob.bhags=p.bhags;S.ob.ancIds=p.anchor_bhag_ids;S.ob.acts=p.activities;
+    renderVision();showScreen('vision-review');
+  }catch(e){clearInterval(iv);console.error(e);showScreen('onboarding');S.ob.step=7;renderOb();alert('Network error. Please try again.')}
+}
+
+// REVIEW
+function renderVision(){
+  const d=$$('v-disp');if(!d)return;
+  d.innerHTML=S.ob.vision.split('\n\n').filter(p=>p.trim()).map(p=>`<p>${p.trim()}</p>`).join('');
+  const ea=$$('v-edit');if(ea)ea.value=S.ob.vision;
+}
+function toggleVEdit(){
+  const d=$$('v-disp'),ea=$$('v-edit'),tog=$$('v-tog'),editing=ea.style.display==='block';
+  if(editing){S.ob.vision=ea.value;renderVision();ea.style.display='none';d.style.display='block';tog.textContent='Edit vision'}
+  else{ea.style.display='block';d.style.display='none';tog.textContent='Save edits'}
+}
+function confirmVision(){const ea=$$('v-edit');if(ea&&ea.style.display==='block')S.ob.vision=ea.value;renderBhags();showScreen('bhags-review')}
+function renderBhags(){
+  const g=$$('b-grid');if(!g)return;
+  g.innerHTML=S.ob.bhags.map(b=>{const a=S.ob.ancIds.includes(b.id);return`<div class="bc${a?' anc':''}">${a?'<div class="b-badge">Anchor BHAG</div>':''}<div class="b-dom">${b.domain}</div><textarea class="b-title" rows="1" onblur="updB(${b.id},'title',this.value)">${b.title}</textarea><textarea class="b-desc" rows="2" onblur="updB(${b.id},'description',this.value)">${b.description}</textarea></div>`}).join('');
+}
+function updB(id,f,v){const b=S.ob.bhags.find(x=>x.id===id);if(b)b[f]=v.trim()}
+function confirmBhags(){renderActs();showScreen('activities-review')}
+function renderActs(){
+  const el=$$('a-rev');if(!el)return;
+  const cats=[{k:'faith',l:'Faith and spiritual growth'},{k:'work',l:'Work and mission'},{k:'health',l:'Health'}];
+  const tg={faith:'tg-f',work:'tg-w',health:'tg-h'};
+  el.innerHTML=cats.map(c=>`<div class="as"><div class="as-lbl">${c.l}</div>${S.ob.acts.filter(a=>a.category===c.k).map(a=>`<div class="ar"><div class="ar-n">${a.id}</div><textarea class="ar-ta" rows="2" onblur="updA(${a.id},this.value)">${a.text}</textarea><span class="atg ${tg[a.tag]||''}">${a.tag}</span></div>`).join('')}</div>`).join('');
+}
+function updA(id,v){const a=S.ob.acts.find(x=>x.id===id);if(a)a.text=v.trim()}
+async function confirmActivities(){
+  if(!S.user)return;
+  const btn=$$('ca-btn');btn.textContent='Saving...';btn.disabled=true;
+  const{error}=await sb.from('profiles').update({name:S.ob.name,vision:S.ob.vision,bhags:S.ob.bhags,activities:S.ob.acts,onboarding_complete:true,updated_at:new Date().toISOString()}).eq('id',S.user.id);
+  btn.textContent='Lock in my activities →';btn.disabled=false;
+  if(error){console.error(error);alert('Error saving. Please try again.');return}
+  S.profile={...S.profile,name:S.ob.name,vision:S.ob.vision,bhags:S.ob.bhags,activities:S.ob.acts,onboarding_complete:true};
+  showScreen('ob-complete');
+}
+async function startDash(){await initDash();showScreen('dashboard')}
+
+// DB
+async function loadProfile(){if(!S.user)return null;const{data}=await sb.from('profiles').select('*').eq('id',S.user.id).single();return data}
+async function getTodayLog(){if(!S.user)return null;const{data}=await sb.from('daily_logs').select('*').eq('user_id',S.user.id).eq('log_date',todayKey()).maybeSingle();return data}
+async function saveTodayLog(c){if(!S.user)return;await sb.from('daily_logs').upsert({user_id:S.user.id,log_date:todayKey(),completed_activities:c,updated_at:new Date().toISOString()})}
+async function getLogs(dates){if(!S.user||!dates.length)return[];const{data}=await sb.from('daily_logs').select('*').eq('user_id',S.user.id).in('log_date',dates);return data||[]}
+
+// DASHBOARD
+async function initDash(){
+  if(!S.profile)S.profile=await loadProfile();
+  if(!S.profile)return;
+  S.dash.acts=S.profile.activities||[];
+  const un=$$('d-un');if(un)un.textContent=S.profile.name||'';
+  const d=new Date();
+  const dt=$$('d-dt');if(dt)dt.textContent=d.toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const gr=$$('d-gr');if(gr){const h=d.getHours();gr.textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+S.profile.name+'.'}
+  const tl=await getTodayLog();S.dash.checked=tl?.completed_activities||[];
+  const wk=getWeek(),mo=getMo();
+  const allD=[...new Set([...wk.map(x=>x.key),...mo.map(x=>x.key)])];
+  const logs=await getLogs(allD);
+  S.dash.logs={};logs.forEach(l=>{S.dash.logs[l.log_date]=l.completed_activities?.length||0});
+  S.dash.logs[todayKey()]=S.dash.checked.length;
+  renderDash();
+}
+function renderDash(){renderActsList();updateScores();renderWkChart();renderMoCal()}
+function renderActsList(){
+  const w=$$('d-aw');if(!w)return;
+  const cats=[{k:'faith',l:'Faith and spiritual growth'},{k:'work',l:'Work and mission'},{k:'health',l:'Health'}];
+  const tg={faith:'tg-f',work:'tg-w',health:'tg-h'};
+  w.innerHTML=cats.map(c=>{
+    const acts=S.dash.acts.filter(a=>a.category===c.k);if(!acts.length)return'';
+    return`<div class="sh">${c.l}</div><div class="al" style="margin-bottom:20px">${acts.map(a=>{const ck=S.dash.checked.includes(a.id);return`<div class="ai${ck?' ck':''}" onclick="toggleAct(${a.id})"><div class="ci"><div class="ck-i"></div></div><div class="ai-lbl">${a.text}</div><span class="ap ${tg[a.tag]||''}">${a.tag}</span></div>`}).join('')}</div>`;
+  }).join('');
+}
+async function toggleAct(id){
+  const idx=S.dash.checked.indexOf(id);
+  if(idx>-1)S.dash.checked.splice(idx,1);else S.dash.checked.push(id);
+  S.dash.logs[todayKey()]=S.dash.checked.length;
+  await saveTodayLog(S.dash.checked);
+  renderActsList();updateScores();renderWkChart();renderMoCal();
+}
+function updateScores(){
+  const tot=S.dash.acts.length||11,tc=S.dash.checked.length,tp=Math.round((tc/tot)*100);
+  if($$('sc-t'))$$('sc-t').textContent=tc+'/'+tot;
+  if($$('sc-tp'))$$('sc-tp').textContent=tp+'%';
+  if($$('pb-f'))$$('pb-f').style.width=tp+'%';
+  if($$('pb-lr'))$$('pb-lr').textContent=tc+' of '+tot+' activities';
+  const wk=getWeek().filter(d=>!d.fut||d.today);
+  const wa=wk.length?Math.round((wk.reduce((s,d)=>s+(S.dash.logs[d.key]||0),0)/(wk.length*tot))*100):0;
+  if($$('sc-w'))$$('sc-w').textContent=wa+'%';
+  const mo=getMo().filter(d=>!d.fut);
+  const ma=mo.length?Math.round((mo.reduce((s,d)=>s+(S.dash.logs[d.key]||0),0)/(mo.length*tot))*100):0;
+  if($$('sc-m'))$$('sc-m').textContent=ma+'%';
+  let streak=0;
+  for(const d of[...getMo()].reverse()){if(d.fut)continue;if((S.dash.logs[d.key]||0)>=8)streak++;else if(!d.today)break}
+  if($$('st-n'))$$('st-n').textContent=streak;
+}
+function renderWkChart(){
+  const c=$$('wkChart');if(!c)return;
+  const tot=S.dash.acts.length||11,wk=getWeek();
+  const scores=wk.map(d=>(d.fut&&!d.today)?0:Math.round(((S.dash.logs[d.key]||0)/tot)*100));
+  const bgs=wk.map(d=>d.today?'#0F6E56':d.fut?'#f0f0ec':'#9FE1CB');
+  if(S.dash.chart){S.dash.chart.destroy();S.dash.chart=null}
+  S.dash.chart=new Chart(c,{type:'bar',data:{labels:wk.map(d=>d.name),datasets:[{data:scores,backgroundColor:bgs,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+'%'}}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{size:11},color:'#6B6B67'},grid:{color:'rgba(0,0,0,0.05)'}},x:{ticks:{font:{size:11},color:'#6B6B67'},grid:{display:false}}}}});
+}
+function renderMoCal(){
+  const el=$$('m-dots');if(!el)return;
+  const tot=S.dash.acts.length||11;
+  el.innerHTML=getMo().map(d=>{const s=S.dash.logs[d.key]||0,p=(s/tot)*100;let c='md';if(!d.fut){if(p>=73)c+=' done';else if(p>=36)c+=' part'}if(d.today)c+=' today';return`<div class="${c}" title="${d.key}: ${s}/${tot}">${d.day}</div>`}).join('');
+}
+async function resetToday(){
+  if(!confirm("Reset today's activities?"))return;
+  S.dash.checked=[];S.dash.logs[todayKey()]=0;await saveTodayLog([]);
+  renderActsList();updateScores();renderWkChart();renderMoCal();
+}
+
+// INIT
+async function init(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){
+    S.user=session.user;S.profile=await loadProfile();
+    if(S.profile?.onboarding_complete){S.ob.name=S.profile.name;await initDash();showScreen('dashboard')}
+    else{S.ob.name=S.profile?.name||'';showScreen('onboarding');renderOb()}
+  }else{showScreen('landing')}
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session&&!S.user){
+      S.user=session.user;let p=await loadProfile();
+      if(!p){await sb.from('profiles').insert({id:session.user.id,email:session.user.email,name:S.ob.name||session.user.email.split('@')[0],onboarding_complete:false});p=await loadProfile()}
+      S.profile=p;
+      if(p?.onboarding_complete){await initDash();showScreen('dashboard')}else{showScreen('onboarding');renderOb()}
+    }else if(event==='SIGNED_OUT'){S.user=null;S.profile=null;showScreen('landing')}
+  });
+}
+init();
+</script>
+</body>
+</html>

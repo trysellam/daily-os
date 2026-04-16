@@ -85,6 +85,14 @@ a{color:var(--p);text-decoration:none}
 .a-form input::placeholder{color:#bbb}
 .a-err{font-size:13px;color:#dc2626;padding:10px 14px;background:#fef2f2;border-radius:var(--rs);display:none;margin-bottom:2px}
 .a-link{text-align:center;font-size:14px;color:var(--tm);margin-top:16px}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px;width:100%}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tm);display:flex;align-items:center;padding:4px;line-height:0}
+.pw-eye:hover{color:var(--tx)}
+.fp-link{font-size:13px;color:var(--p);background:none;border:none;cursor:pointer;font-family:inherit;text-align:right;display:block;margin-top:-4px;padding:0}
+.fp-link:hover{text-decoration:underline}
+.fp-back{font-size:13px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:16px;padding:0}
+.fp-back:hover{color:var(--tx)}
 
 /* ── ONBOARDING ── */
 .ob-hd{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);background:var(--card)}
@@ -361,13 +369,40 @@ a{color:var(--p);text-decoration:none}
     <div id="f-signup" class="a-form">
       <input type="text" id="su-name" placeholder="Your full name" autocomplete="name">
       <input type="email" id="su-email" placeholder="Email address" autocomplete="email">
-      <input type="password" id="su-pw" placeholder="Password (min 8 characters)" autocomplete="new-password">
+      <div class="pw-wrap">
+        <input type="password" id="su-pw" placeholder="Password (min 8 characters)" autocomplete="new-password">
+        <button type="button" class="pw-eye" id="su-pw-eye" onclick="togglePw('su-pw','su-pw-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
       <button class="btn btn-p btn-full" id="su-btn" onclick="doSignUp()">Create account</button>
     </div>
     <div id="f-signin" class="a-form" style="display:none">
       <input type="email" id="si-email" placeholder="Email address" autocomplete="email">
-      <input type="password" id="si-pw" placeholder="Password" autocomplete="current-password">
+      <div class="pw-wrap">
+        <input type="password" id="si-pw" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="pw-eye" id="si-pw-eye" onclick="togglePw('si-pw','si-pw-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <button type="button" class="fp-link" onclick="showForgot()">Forgot your password?</button>
       <button class="btn btn-p btn-full" id="si-btn" onclick="doSignIn()">Sign in</button>
+    </div>
+    <!-- Forgot password form -->
+    <div id="f-forgot" class="a-form" style="display:none">
+      <button type="button" class="fp-back" onclick="hideForgot()">← Back to sign in</button>
+      <p style="font-size:14px;color:var(--tm);margin-bottom:4px">Enter the email address for your account and we will send you a reset link.</p>
+      <input type="email" id="fp-email" placeholder="Email address" autocomplete="email">
+      <button class="btn btn-p btn-full" id="fp-btn" onclick="doForgotPw()">Send reset link</button>
+    </div>
+    <!-- Set new password form (shown after reset link clicked) -->
+    <div id="f-reset-pw" class="a-form" style="display:none">
+      <p style="font-size:14px;color:var(--tm);margin-bottom:4px">Choose a new password for your account.</p>
+      <div class="pw-wrap">
+        <input type="password" id="rp-pw" placeholder="New password (min 8 characters)" autocomplete="new-password">
+        <button type="button" class="pw-eye" id="rp-pw-eye" onclick="togglePw('rp-pw','rp-pw-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="pw-wrap">
+        <input type="password" id="rp-pw2" placeholder="Confirm new password" autocomplete="new-password">
+        <button type="button" class="pw-eye" id="rp-pw2-eye" onclick="togglePw('rp-pw2','rp-pw2-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <button class="btn btn-p btn-full" id="rp-btn" onclick="doResetPw()">Set new password</button>
     </div>
     <div class="a-link"><a href="#" onclick="showScreen('landing');return false">← Back to home</a></div>
   </div>
@@ -666,7 +701,35 @@ function showScreen(n){document.querySelectorAll('.screen').forEach(s=>s.classLi
 function $$(id){return document.getElementById(id)}
 
 // AUTH
-function showTab(t){$$('f-signup').style.display=t==='signup'?'flex':'none';$$('f-signin').style.display=t==='signin'?'flex':'none';$$('tab-signup').classList.toggle('on',t==='signup');$$('tab-signin').classList.toggle('on',t==='signin');$$('a-err').style.display='none'}
+const EYE_ON=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const EYE_OFF=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+function togglePw(inputId,btnId){const i=$$(inputId),b=$$(btnId),show=i.type==='password';i.type=show?'text':'password';b.innerHTML=show?EYE_OFF:EYE_ON}
+function showForgot(){['f-signin','f-signup'].forEach(id=>{const el=$$(id);if(el)el.style.display='none'});$$('f-forgot').style.display='flex';$$('a-err').style.display='none';const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='none'}
+function hideForgot(){$$('f-forgot').style.display='none';showTab('signin');const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='flex'}
+async function doForgotPw(){
+  const email=$$('fp-email').value.trim();
+  if(!email)return showErr('Please enter your email address');
+  const btn=$$('fp-btn');btn.textContent='Sending...';btn.disabled=true;
+  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://dailyos.thesystemscircle.com'});
+  btn.textContent='Send reset link';btn.disabled=false;
+  if(error)return showErr(error.message);
+  $$('a-err').style.display='none';
+  $$('f-forgot').innerHTML='<p style="font-size:15px;color:var(--tx);line-height:1.65">Check your email. If an account exists for <strong>'+email+'</strong>, you will receive a reset link within a minute.</p><button type="button" class="fp-back" style="margin-top:16px" onclick="hideForgot()">Back to sign in</button>';
+}
+async function doResetPw(){
+  const pw=$$('rp-pw').value,pw2=$$('rp-pw2').value;
+  if(pw.length<8)return showErr('Password must be at least 8 characters');
+  if(pw!==pw2)return showErr('Passwords do not match');
+  const btn=$$('rp-btn');btn.textContent='Saving...';btn.disabled=true;
+  const{error}=await sb.auth.updateUser({password:pw});
+  btn.textContent='Set new password';btn.disabled=false;
+  if(error)return showErr(error.message);
+  const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='flex';
+  $$('f-reset-pw').style.display='none';showTab('signin');showErr('');
+  $$('a-err').style.cssText='color:#166534;background:#dcfce7;display:block';
+  $$('a-err').textContent='Password updated. Please sign in with your new password.';
+}
+function showTab(t){['f-signup','f-signin','f-forgot','f-reset-pw'].forEach(id=>{const el=$$(id);if(el)el.style.display='none'});const el=$$(t==='signup'?'f-signup':'f-signin');if(el)el.style.display='flex';$$('tab-signup').classList.toggle('on',t==='signup');$$('tab-signin').classList.toggle('on',t==='signin');$$('a-err').style.display='none';const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='flex'}
 function showErr(m){const e=$$('a-err');e.textContent=m;e.style.display='block'}
 async function doSignUp(){
   const name=$$('su-name').value.trim(),email=$$('su-email').value.trim(),pw=$$('su-pw').value;
@@ -788,12 +851,16 @@ Rules: vision must feel deeply personal; anchor_bhag_ids should be the 2 BHAGs w
 6. Faith and spirituality: ${S.ob.ans[5]}
 7. Version of myself I am leaving behind: ${S.ob.ans[6]}`;
   try{
-    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:[{role:'user',content:usr}],max_tokens:2500})});
+    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:[{role:'user',content:usr}],max_tokens:4000})});
     const data=await resp.json();clearInterval(iv);
+    if(!resp.ok||data.type==='error'){
+      const msg=data?.error?.message||'The AI service returned an error. Please try again.';
+      console.error('API error:',data);showScreen('onboarding');S.ob.step=7;renderOb();alert(msg);return;
+    }
     const txt=data.content?.[0]?.text||'';
     let p;
     try{p=JSON.parse(txt.replace(/```json|```/g,'').trim())}
-    catch(e){console.error('Parse err:',e,txt);showScreen('onboarding');S.ob.step=7;renderOb();alert('Something went wrong. Please try again.');return}
+    catch(e){console.error('Parse err:',e,txt);showScreen('onboarding');S.ob.step=7;renderOb();alert('Something went wrong processing your answers. Please try again.');return}
     S.ob.vision=p.vision_statement;S.ob.bhags=p.bhags;S.ob.ancIds=p.anchor_bhag_ids;S.ob.acts=p.activities;
     renderVision();showScreen('vision-review');
   }catch(e){clearInterval(iv);console.error(e);showScreen('onboarding');S.ob.step=7;renderOb();alert('Network error. Please try again.')}
@@ -919,6 +986,13 @@ async function init(){
     else{S.ob.name=S.profile?.name||'';showScreen('onboarding');renderOb()}
   }else{showScreen('landing')}
   sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='PASSWORD_RECOVERY'){
+      showScreen('auth');
+      const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='none';
+      ['f-signup','f-signin','f-forgot'].forEach(id=>{const el=$$(id);if(el)el.style.display='none'});
+      $$('f-reset-pw').style.display='flex';
+      return;
+    }
     if(event==='SIGNED_IN'&&session&&!S.user){
       S.user=session.user;let p=await loadProfile();
       if(!p){await sb.from('profiles').insert({id:session.user.id,email:session.user.email,name:S.ob.name||session.user.email.split('@')[0],onboarding_complete:false});p=await loadProfile()}

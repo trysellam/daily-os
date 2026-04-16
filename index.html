@@ -220,17 +220,17 @@ a{color:var(--p);text-decoration:none}
 .sc-fit.no ul li::before{background:#cbd5e1}
 
 /* How it works */
-.sc-layers{display:flex;flex-direction:column;gap:16px;margin-top:24px}
-.sc-layer{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:24px 28px;display:flex;gap:20px;align-items:flex-start}
-.sc-layer-n{font-size:13px;font-weight:500;color:var(--p);min-width:80px;padding-top:2px}
-.sc-layer-body h4{font-size:16px;font-weight:500;margin-bottom:6px}
+.sc-layers{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+.sc-layer{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px 24px;display:flex;gap:20px;align-items:flex-start;border-left:3px solid var(--p)}
+.sc-layer-n{font-size:11px;font-weight:600;color:var(--p);min-width:88px;padding-top:3px;text-transform:uppercase;letter-spacing:.05em}
+.sc-layer-body h4{font-size:15px;font-weight:500;margin-bottom:5px}
 .sc-layer-body p{font-size:14px;color:var(--tm);line-height:1.6}
 
 /* Progression */
 .sc-stages{display:flex;flex-direction:column;gap:12px;margin-top:24px}
 .sc-stage{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:24px 28px}
 .sc-stage-hd{display:flex;align-items:center;gap:16px;margin-bottom:12px}
-.sc-stage-tag{font-size:11px;font-weight:500;background:var(--p);color:#fff;padding:3px 12px;border-radius:10px}
+.sc-stage-tag{font-size:11px;font-weight:500;background:var(--p);color:#fff;padding:3px 12px;border-radius:10px;white-space:nowrap;flex-shrink:0}
 .sc-stage h4{font-size:17px;font-weight:500}
 .sc-stage p{font-size:14px;color:var(--tm);line-height:1.65}
 .sc-stage-out{font-size:13px;color:var(--p);font-weight:500;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
@@ -265,6 +265,12 @@ a{color:var(--p);text-decoration:none}
   .founder-img{aspect-ratio:3/2;object-position:top}
 }
 
+/* Stats row */
+.sc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:64px}
+.sc-stat{background:var(--card);padding:20px 16px;text-align:center}
+.sc-stat-n{font-size:32px;font-weight:500;color:var(--p);line-height:1;margin-bottom:6px}
+.sc-stat-l{font-size:12px;color:var(--tm);line-height:1.4}
+
 /* CTA block */
 .sc-cta-block{background:var(--p);border-radius:var(--r);padding:48px;text-align:center;margin-top:64px}
 .sc-cta-block h2{font-size:28px;font-weight:500;color:#fff;margin-bottom:12px}
@@ -281,6 +287,8 @@ a{color:var(--p);text-decoration:none}
   .bg,.sc-fit-g,.sc-pricing{grid-template-columns:1fr}
   .sc-layer{flex-direction:column;gap:8px}
   .sc-cta-block{padding:32px 24px}
+  .sc-stage-hd{flex-direction:column;align-items:flex-start;gap:8px}
+  .sc-stage{padding:20px 20px}
   .ln-r{gap:10px}
 }
 </style>
@@ -479,6 +487,13 @@ a{color:var(--p);text-decoration:none}
 
   <div class="sc-body">
 
+    <!-- STATS ROW -->
+    <div class="sc-stats">
+      <div class="sc-stat"><div class="sc-stat-n">90</div><div class="sc-stat-l">days to a complete income system</div></div>
+      <div class="sc-stat"><div class="sc-stat-n">3</div><div class="sc-stat-l">structured stages with clear outcomes</div></div>
+      <div class="sc-stat"><div class="sc-stat-n">1</div><div class="sc-stat-l">community built around implementation</div></div>
+    </div>
+
     <!-- WHY I BUILT THIS -->
     <div class="sc-section">
       <div class="sc-section-label">Why this exists</div>
@@ -502,14 +517,17 @@ a{color:var(--p);text-decoration:none}
     <div class="sc-section">
       <div class="sc-section-label">The core promise</div>
       <h2>In 90 days, you will have a complete business system.</h2>
-      <p>Designed to generate predictable income from your expertise — with the structure, accountability, and implementation support to make it work. Members who are earlier in their journey should expect six months to fully realise the promise. The 90-day outcome is achievable for intermediates. Everyone builds the same foundation; it takes longer to implement at different starting points.</p>
+      <div style="background:var(--p);border-radius:var(--r);padding:20px 24px;margin:20px 0">
+        <p style="color:#fff;font-size:15px;line-height:1.7;margin:0;font-weight:500">Predictable income from your expertise — with the structure, accountability, and implementation support to make it work.</p>
+      </div>
+      <p>Members earlier in their journey may take six months to fully realise it. Everyone builds the same foundation.</p>
     </div>
 
     <!-- WHO IT IS FOR -->
     <div class="sc-section">
       <div class="sc-section-label">Who it is for</div>
       <h2>This is not for everyone. It should not be.</h2>
-      <p>The Systems Circle has an entry criteria because the wrong members slow down the right ones. Here is how to know which side of that line you are on.</p>
+      <p>The wrong members slow down the right ones.</p>
       <div class="sc-fit-g">
         <div class="sc-fit yes">
           <div class="sc-fit-lbl">You belong here if</div>
@@ -543,21 +561,21 @@ a{color:var(--p);text-decoration:none}
           <div class="sc-layer-n">Content</div>
           <div class="sc-layer-body">
             <h4>Monthly systems and frameworks</h4>
-            <p>Each month, one new system or framework is released with a full implementation guide. Members work through it at their own pace before the live session. The content library grows month by month — leaving means losing access to everything built. Each system connects to the one before it. You are not collecting disconnected ideas. You are building one complete income system, piece by piece.</p>
+            <p>Each month, one new system is released with a full implementation guide. The library grows month by month — and it all connects. You are not collecting ideas. You are building one complete income system, piece by piece.</p>
           </div>
         </div>
         <div class="sc-layer">
           <div class="sc-layer-n">Community</div>
           <div class="sc-layer-body">
             <h4>A structured space for implementation</h4>
-            <p>The community operates with clear spaces: an Implementation Board where members post their progress, a Wins Board where results get shared — no matter how small — and a Questions Board for working through the current framework together. The culture is built around doing, not discussing.</p>
+            <p>Three structured spaces: an Implementation Board, a Wins Board, and a Questions Board. The culture is built around doing, not discussing.</p>
           </div>
         </div>
         <div class="sc-layer">
           <div class="sc-layer-n">Accountability</div>
           <div class="sc-layer-body">
             <h4>Peer pods</h4>
-            <p>Small groups of four to five members, intentionally matched by stage. One structured check-in per week: what you committed to, what you completed, what you are doing next. No long discussions. The pods run on their own rhythm without depending on me to hold them together.</p>
+            <p>Small groups of four to five members, matched by stage. One structured check-in per week: what you committed to, what you completed, what is next. No long discussions.</p>
           </div>
         </div>
       </div>
@@ -574,7 +592,7 @@ a{color:var(--p);text-decoration:none}
             <span class="sc-stage-tag">Months 1 to 3</span>
             <h4>Stage One: The Foundation</h4>
           </div>
-          <p>Three systems: Offer Architecture, Pricing and Monetisation Logic, and Client Acquisition Systems. Every member works through these before moving forward, regardless of when they join.</p>
+          <p>Offer Architecture · Pricing and Monetisation Logic · Client Acquisition Systems. Every member works through these before moving forward.</p>
           <div class="sc-stage-out">Outcome: A clear offer, a structured price, and a repeatable way to attract clients.</div>
         </div>
         <div class="sc-stage">
@@ -582,7 +600,7 @@ a{color:var(--p);text-decoration:none}
             <span class="sc-stage-tag">Months 4 to 6</span>
             <h4>Stage Two: The Build</h4>
           </div>
-          <p>Three systems: Delivery and Operations, Retention and Revenue Expansion, and Visibility and Authority. The foundation is in place. This stage builds on it with systems that reduce dependency on your direct time and effort.</p>
+          <p>Delivery and Operations · Retention and Revenue Expansion · Visibility and Authority. Builds on Stage One — reducing dependency on your direct time and effort.</p>
           <div class="sc-stage-out">Outcome: A structured business that does not collapse when you step back.</div>
         </div>
         <div class="sc-stage">
@@ -590,7 +608,7 @@ a{color:var(--p);text-decoration:none}
             <span class="sc-stage-tag">Month 7 onwards</span>
             <h4>Stage Three: The Scale</h4>
           </div>
-          <p>No fixed endpoint. Each month introduces a system that helps members grow beyond what they built in stages one and two — team and delegation, multiple income streams, productising expertise, and building assets that generate income without active delivery.</p>
+          <p>No fixed endpoint. Each month: team and delegation, multiple income streams, productising expertise, and assets that generate income without active delivery.</p>
           <div class="sc-stage-out">Outcome: A business that grows beyond your direct involvement.</div>
         </div>
       </div>
@@ -600,7 +618,7 @@ a{color:var(--p);text-decoration:none}
     <div class="sc-section">
       <div class="sc-section-label">Founding member pricing</div>
       <h2>The founding rate is a genuine privilege, not a discount.</h2>
-      <p>Members who join at this rate helped build what every future member enters. That carries weight. The founding rate will not stay open indefinitely — it closes when the founding cohort is full.</p>
+      <p>Members at this rate helped build what every future member enters. The rate closes when the founding cohort is full.</p>
       <div class="sc-pricing">
         <div class="sc-plan feat-p">
           <div class="sc-plan-lbl">Founding member rate</div>

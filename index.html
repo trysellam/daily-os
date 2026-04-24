@@ -85,14 +85,6 @@ a{color:var(--p);text-decoration:none}
 .a-form input::placeholder{color:#bbb}
 .a-err{font-size:13px;color:#dc2626;padding:10px 14px;background:#fef2f2;border-radius:var(--rs);display:none;margin-bottom:2px}
 .a-link{text-align:center;font-size:14px;color:var(--tm);margin-top:16px}
-.pw-wrap{position:relative}
-.pw-wrap input{padding-right:44px;width:100%}
-.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tm);display:flex;align-items:center;padding:4px;line-height:0}
-.pw-eye:hover{color:var(--tx)}
-.fp-link{font-size:13px;color:var(--p);background:none;border:none;cursor:pointer;font-family:inherit;text-align:right;display:block;margin-top:-4px;padding:0}
-.fp-link:hover{text-decoration:underline}
-.fp-back{font-size:13px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:16px;padding:0}
-.fp-back:hover{color:var(--tx)}
 
 /* ── ONBOARDING ── */
 .ob-hd{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);background:var(--card)}
@@ -299,6 +291,53 @@ a{color:var(--p);text-decoration:none}
   .sc-stage{padding:20px 20px}
   .ln-r{gap:10px}
 }
+
+/* ── EDIT PROFILE SCREEN ── */
+#screen-edit-profile.active{display:block;min-height:100vh}
+.ep{max-width:660px;margin:0 auto;padding:32px 20px 80px}
+.ep-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;gap:12px;flex-wrap:wrap}
+.ep-hd h2{font-size:24px;font-weight:500}
+.ep-tabs{display:flex;gap:4px;background:var(--bd);border-radius:var(--rs);padding:3px;margin-bottom:28px}
+.ep-tab{flex:1;padding:9px 8px;text-align:center;font-size:14px;font-weight:500;border-radius:6px;cursor:pointer;border:none;background:transparent;color:var(--tm);font-family:inherit;transition:all .15s}
+.ep-tab.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.ep-panel{display:none}.ep-panel.on{display:block}
+.ep-label{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--tm);margin-bottom:8px;margin-top:20px}
+.ep-label:first-child{margin-top:0}
+.ep-ta{width:100%;min-height:180px;padding:16px;border:1px solid var(--bd);border-radius:var(--r);font-size:15px;line-height:1.7;resize:vertical;outline:none;background:var(--card);color:var(--tx);font-family:inherit;transition:border-color .15s}
+.ep-ta:focus{border-color:var(--p)}
+.ep-bhag{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;margin-bottom:10px}
+.ep-bhag.anc{border-color:var(--p);background:var(--pl)}
+.ep-bhag-dom{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--tm);margin-bottom:6px}
+.ep-bhag.anc .ep-bhag-dom{color:var(--p)}
+.ep-bhag input{width:100%;border:none;outline:none;font-size:15px;font-weight:500;background:transparent;color:var(--tx);font-family:inherit;margin-bottom:4px}
+.ep-bhag textarea{width:100%;border:none;outline:none;font-size:13px;color:var(--tm);background:transparent;font-family:inherit;resize:none;line-height:1.5}
+.ep-act{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.ep-act:last-child{border-bottom:none}
+.ep-act-n{font-size:12px;color:var(--tm);min-width:20px;padding-top:3px}
+.ep-act-ta{flex:1;font-size:14px;line-height:1.5;outline:none;border:none;background:transparent;color:var(--tx);font-family:inherit;resize:none}
+.ep-save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--bd);padding:16px 24px;display:flex;gap:12px;justify-content:flex-end;z-index:100}
+.ep-regen{font-size:14px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline}
+.ep-regen:hover{color:var(--p)}
+
+/* ── SHARE CARD BUTTON ── */
+.share-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.share-btn{display:flex;align-items:center;gap:7px;background:var(--pd);color:#fff;border:none;border-radius:var(--rs);padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s}
+.share-btn:hover{background:var(--p)}
+.share-btn svg{flex-shrink:0}
+
+/* ── EMAIL + EDIT BUTTONS in dash nav ── */
+.dash-actions{display:flex;align-items:center;gap:8px}
+.da-btn{font-size:13px;color:var(--tm);background:none;border:1px solid var(--bd);border-radius:var(--rs);padding:6px 12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.da-btn:hover{border-color:var(--p);color:var(--p)}
+
+/* ── SHARE MODAL ── */
+.share-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
+.share-modal{background:var(--card);border-radius:var(--r);padding:28px;max-width:380px;width:100%;text-align:center}
+.share-modal h3{font-size:18px;font-weight:500;margin-bottom:6px}
+.share-modal p{font-size:14px;color:var(--tm);margin-bottom:20px;line-height:1.5}
+.share-modal canvas{border-radius:10px;max-width:100%;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto}
+.share-modal-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.sm-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;color:var(--tm);cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
@@ -369,40 +408,13 @@ a{color:var(--p);text-decoration:none}
     <div id="f-signup" class="a-form">
       <input type="text" id="su-name" placeholder="Your full name" autocomplete="name">
       <input type="email" id="su-email" placeholder="Email address" autocomplete="email">
-      <div class="pw-wrap">
-        <input type="password" id="su-pw" placeholder="Password (min 8 characters)" autocomplete="new-password">
-        <button type="button" class="pw-eye" id="su-pw-eye" onclick="togglePw('su-pw','su-pw-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
+      <input type="password" id="su-pw" placeholder="Password (min 8 characters)" autocomplete="new-password">
       <button class="btn btn-p btn-full" id="su-btn" onclick="doSignUp()">Create account</button>
     </div>
     <div id="f-signin" class="a-form" style="display:none">
       <input type="email" id="si-email" placeholder="Email address" autocomplete="email">
-      <div class="pw-wrap">
-        <input type="password" id="si-pw" placeholder="Password" autocomplete="current-password">
-        <button type="button" class="pw-eye" id="si-pw-eye" onclick="togglePw('si-pw','si-pw-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
-      <button type="button" class="fp-link" onclick="showForgot()">Forgot your password?</button>
+      <input type="password" id="si-pw" placeholder="Password" autocomplete="current-password">
       <button class="btn btn-p btn-full" id="si-btn" onclick="doSignIn()">Sign in</button>
-    </div>
-    <!-- Forgot password form -->
-    <div id="f-forgot" class="a-form" style="display:none">
-      <button type="button" class="fp-back" onclick="hideForgot()">← Back to sign in</button>
-      <p style="font-size:14px;color:var(--tm);margin-bottom:4px">Enter the email address for your account and we will send you a reset link.</p>
-      <input type="email" id="fp-email" placeholder="Email address" autocomplete="email">
-      <button class="btn btn-p btn-full" id="fp-btn" onclick="doForgotPw()">Send reset link</button>
-    </div>
-    <!-- Set new password form (shown after reset link clicked) -->
-    <div id="f-reset-pw" class="a-form" style="display:none">
-      <p style="font-size:14px;color:var(--tm);margin-bottom:4px">Choose a new password for your account.</p>
-      <div class="pw-wrap">
-        <input type="password" id="rp-pw" placeholder="New password (min 8 characters)" autocomplete="new-password">
-        <button type="button" class="pw-eye" id="rp-pw-eye" onclick="togglePw('rp-pw','rp-pw-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
-      <div class="pw-wrap">
-        <input type="password" id="rp-pw2" placeholder="Confirm new password" autocomplete="new-password">
-        <button type="button" class="pw-eye" id="rp-pw2-eye" onclick="togglePw('rp-pw2','rp-pw2-eye')" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
-      <button class="btn btn-p btn-full" id="rp-btn" onclick="doResetPw()">Set new password</button>
     </div>
     <div class="a-link"><a href="#" onclick="showScreen('landing');return false">← Back to home</a></div>
   </div>
@@ -478,7 +490,14 @@ a{color:var(--p);text-decoration:none}
 <div id="screen-dashboard" class="screen">
   <nav class="dn">
     <div class="logo">The Daily <span>OS</span></div>
-    <div class="dn-r"><span id="d-un"></span><button class="so" onclick="doSignOut()">Sign out</button></div>
+    <div class="dn-r">
+      <div class="dash-actions">
+        <button class="da-btn" onclick="openEditProfile()">Edit vision</button>
+        <button class="da-btn" onclick="emailVision()">Email my vision</button>
+      </div>
+      <span id="d-un"></span>
+      <button class="so" onclick="doSignOut()">Sign out</button>
+    </div>
   </nav>
   <div class="di">
     <div class="d-dt" id="d-dt"></div>
@@ -497,8 +516,56 @@ a{color:var(--p);text-decoration:none}
     <div class="mow"><div class="sh">Month at a glance</div><div class="mod" id="m-dots"></div></div>
     <div class="dft">
       <div class="st-i">Streak: <span class="st-n" id="st-n">0</span> days</div>
-      <button class="rst" onclick="resetToday()">Reset today</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="share-btn" onclick="openShareModal()" title="Share your streak">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share streak
+        </button>
+        <button class="rst" onclick="resetToday()">Reset today</button>
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ EDIT PROFILE ═══ -->
+<div id="screen-edit-profile" class="screen">
+  <nav class="dn">
+    <div class="logo">The Daily <span>OS</span></div>
+    <div class="dn-r"><button class="so" onclick="showScreen('dashboard')">← Back to dashboard</button></div>
+  </nav>
+  <div class="ep">
+    <div class="ep-hd">
+      <h2>Edit your Daily OS</h2>
+      <button class="ep-regen" onclick="regenAll()">Regenerate everything with AI ↺</button>
+    </div>
+    <div class="ep-tabs">
+      <button class="ep-tab on" onclick="epTab('vision')">Vision</button>
+      <button class="ep-tab" onclick="epTab('bhags')">BHAGs</button>
+      <button class="ep-tab" onclick="epTab('activities')">Activities</button>
+    </div>
+
+    <!-- VISION PANEL -->
+    <div class="ep-panel on" id="ep-vision">
+      <div class="ep-label">Your vision statement</div>
+      <p style="font-size:13px;color:var(--tm);margin-bottom:12px;line-height:1.5">Edit this freely. It is yours. When you save, your BHAGs and activities remain unchanged unless you edit them too.</p>
+      <textarea class="ep-ta" id="ep-vision-ta" style="min-height:280px"></textarea>
+    </div>
+
+    <!-- BHAGS PANEL -->
+    <div class="ep-panel" id="ep-bhags">
+      <p style="font-size:13px;color:var(--tm);margin-bottom:16px;line-height:1.5">The two highlighted BHAGs drive your 11 daily activities. Edit titles and descriptions freely.</p>
+      <div id="ep-bhag-list"></div>
+    </div>
+
+    <!-- ACTIVITIES PANEL -->
+    <div class="ep-panel" id="ep-activities">
+      <p style="font-size:13px;color:var(--tm);margin-bottom:16px;line-height:1.5">Edit the text of any activity. The category and tag stay as they are.</p>
+      <div id="ep-act-list"></div>
+    </div>
+  </div>
+  <div class="ep-save-bar">
+    <button class="btn btn-o" onclick="showScreen('dashboard')">Cancel</button>
+    <button class="btn btn-p" id="ep-save-btn" onclick="saveEditProfile()">Save changes</button>
   </div>
 </div>
 
@@ -701,35 +768,7 @@ function showScreen(n){document.querySelectorAll('.screen').forEach(s=>s.classLi
 function $$(id){return document.getElementById(id)}
 
 // AUTH
-const EYE_ON=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-const EYE_OFF=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
-function togglePw(inputId,btnId){const i=$$(inputId),b=$$(btnId),show=i.type==='password';i.type=show?'text':'password';b.innerHTML=show?EYE_OFF:EYE_ON}
-function showForgot(){['f-signin','f-signup'].forEach(id=>{const el=$$(id);if(el)el.style.display='none'});$$('f-forgot').style.display='flex';$$('a-err').style.display='none';const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='none'}
-function hideForgot(){$$('f-forgot').style.display='none';showTab('signin');const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='flex'}
-async function doForgotPw(){
-  const email=$$('fp-email').value.trim();
-  if(!email)return showErr('Please enter your email address');
-  const btn=$$('fp-btn');btn.textContent='Sending...';btn.disabled=true;
-  const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://dailyos.thesystemscircle.com'});
-  btn.textContent='Send reset link';btn.disabled=false;
-  if(error)return showErr(error.message);
-  $$('a-err').style.display='none';
-  $$('f-forgot').innerHTML='<p style="font-size:15px;color:var(--tx);line-height:1.65">Check your email. If an account exists for <strong>'+email+'</strong>, you will receive a reset link within a minute.</p><button type="button" class="fp-back" style="margin-top:16px" onclick="hideForgot()">Back to sign in</button>';
-}
-async function doResetPw(){
-  const pw=$$('rp-pw').value,pw2=$$('rp-pw2').value;
-  if(pw.length<8)return showErr('Password must be at least 8 characters');
-  if(pw!==pw2)return showErr('Passwords do not match');
-  const btn=$$('rp-btn');btn.textContent='Saving...';btn.disabled=true;
-  const{error}=await sb.auth.updateUser({password:pw});
-  btn.textContent='Set new password';btn.disabled=false;
-  if(error)return showErr(error.message);
-  const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='flex';
-  $$('f-reset-pw').style.display='none';showTab('signin');showErr('');
-  $$('a-err').style.cssText='color:#166534;background:#dcfce7;display:block';
-  $$('a-err').textContent='Password updated. Please sign in with your new password.';
-}
-function showTab(t){['f-signup','f-signin','f-forgot','f-reset-pw'].forEach(id=>{const el=$$(id);if(el)el.style.display='none'});const el=$$(t==='signup'?'f-signup':'f-signin');if(el)el.style.display='flex';$$('tab-signup').classList.toggle('on',t==='signup');$$('tab-signin').classList.toggle('on',t==='signin');$$('a-err').style.display='none';const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='flex'}
+function showTab(t){$$('f-signup').style.display=t==='signup'?'flex':'none';$$('f-signin').style.display=t==='signin'?'flex':'none';$$('tab-signup').classList.toggle('on',t==='signup');$$('tab-signin').classList.toggle('on',t==='signin');$$('a-err').style.display='none'}
 function showErr(m){const e=$$('a-err');e.textContent=m;e.style.display='block'}
 async function doSignUp(){
   const name=$$('su-name').value.trim(),email=$$('su-email').value.trim(),pw=$$('su-pw').value;
@@ -851,16 +890,12 @@ Rules: vision must feel deeply personal; anchor_bhag_ids should be the 2 BHAGs w
 6. Faith and spirituality: ${S.ob.ans[5]}
 7. Version of myself I am leaving behind: ${S.ob.ans[6]}`;
   try{
-    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:[{role:'user',content:usr}],max_tokens:4000})});
+    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:[{role:'user',content:usr}],max_tokens:2500})});
     const data=await resp.json();clearInterval(iv);
-    if(!resp.ok||data.type==='error'){
-      const msg=data?.error?.message||'The AI service returned an error. Please try again.';
-      console.error('API error:',data);showScreen('onboarding');S.ob.step=7;renderOb();alert(msg);return;
-    }
     const txt=data.content?.[0]?.text||'';
     let p;
     try{p=JSON.parse(txt.replace(/```json|```/g,'').trim())}
-    catch(e){console.error('Parse err:',e,txt);showScreen('onboarding');S.ob.step=7;renderOb();alert('Something went wrong processing your answers. Please try again.');return}
+    catch(e){console.error('Parse err:',e,txt);showScreen('onboarding');S.ob.step=7;renderOb();alert('Something went wrong. Please try again.');return}
     S.ob.vision=p.vision_statement;S.ob.bhags=p.bhags;S.ob.ancIds=p.anchor_bhag_ids;S.ob.acts=p.activities;
     renderVision();showScreen('vision-review');
   }catch(e){clearInterval(iv);console.error(e);showScreen('onboarding');S.ob.step=7;renderOb();alert('Network error. Please try again.')}
@@ -977,6 +1012,228 @@ async function resetToday(){
   renderActsList();updateScores();renderWkChart();renderMoCal();
 }
 
+
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 1 — EDIT VISION / BHAGS / ACTIVITIES
+// ══════════════════════════════════════════════════════════════
+function openEditProfile(){
+  const p=S.profile;
+  if(!p)return;
+  // populate vision
+  const vta=$$('ep-vision-ta');
+  if(vta)vta.value=p.vision||'';
+  // populate bhags
+  renderEpBhags(p.bhags||[],p.activities||[]);
+  // populate activities
+  renderEpActs(p.activities||[]);
+  // reset to vision tab
+  epTab('vision');
+  showScreen('edit-profile');
+}
+
+function epTab(name){
+  document.querySelectorAll('.ep-tab').forEach((t,i)=>{
+    const names=['vision','bhags','activities'];
+    t.classList.toggle('on',names[i]===name);
+  });
+  document.querySelectorAll('.ep-panel').forEach(p=>p.classList.remove('on'));
+  const panel=$$('ep-'+name);
+  if(panel)panel.classList.add('on');
+}
+
+function renderEpBhags(bhags,acts){
+  const el=$$('ep-bhag-list');if(!el)return;
+  // detect anchor BHAGs — work and faith (ids 1 and 2 by convention)
+  const ancIds=S.profile?.activities
+    ? [...new Set(S.profile.activities.filter(a=>a.category==='faith'||a.category==='work').map(a=>a.category==='faith'?2:1))]
+    : [1,2];
+  el.innerHTML=bhags.map(b=>{
+    const isAnc=ancIds.includes(b.id)||b.domain==='work'||b.domain==='faith';
+    return`<div class="ep-bhag${isAnc?' anc':''}">
+      <div class="ep-bhag-dom">${b.domain}${isAnc?' · anchor BHAG':''}</div>
+      <input value="${(b.title||'').replace(/"/g,'&quot;')}" data-bhag-id="${b.id}" data-field="title" placeholder="BHAG title">
+      <textarea rows="2" data-bhag-id="${b.id}" data-field="description" placeholder="Short description">${b.description||''}</textarea>
+    </div>`;
+  }).join('');
+}
+
+function renderEpActs(acts){
+  const el=$$('ep-act-list');if(!el)return;
+  const cats=[{k:'faith',l:'Faith and spiritual growth'},{k:'work',l:'Work and mission'},{k:'health',l:'Health'}];
+  const tg={faith:'tg-f',work:'tg-w',health:'tg-h'};
+  el.innerHTML=cats.map(c=>{
+    const ca=acts.filter(a=>a.category===c.k);if(!ca.length)return'';
+    return`<div class="as"><div class="as-lbl">${c.l}</div>${ca.map(a=>`
+      <div class="ep-act">
+        <div class="ep-act-n">${a.id}</div>
+        <textarea class="ep-act-ta" rows="2" data-act-id="${a.id}">${a.text||''}</textarea>
+        <span class="atg ${tg[a.tag]||''}">${a.tag}</span>
+      </div>`).join('')}</div>`;
+  }).join('');
+}
+
+async function saveEditProfile(){
+  const btn=$$('ep-save-btn');btn.textContent='Saving...';btn.disabled=true;
+  // collect vision
+  const vision=($$('ep-vision-ta')?.value||'').trim();
+  // collect bhags
+  const bhags=(S.profile.bhags||[]).map(b=>{
+    const ti=document.querySelector(`[data-bhag-id="${b.id}"][data-field="title"]`);
+    const de=document.querySelector(`[data-bhag-id="${b.id}"][data-field="description"]`);
+    return{...b,title:ti?ti.value.trim():b.title,description:de?de.value.trim():b.description};
+  });
+  // collect activities
+  const acts=(S.profile.activities||[]).map(a=>{
+    const ta=document.querySelector(`[data-act-id="${a.id}"]`);
+    return{...a,text:ta?ta.value.trim():a.text};
+  });
+  const{error}=await sb.from('profiles').update({vision,bhags,activities:acts,updated_at:new Date().toISOString()}).eq('id',S.user.id);
+  btn.textContent='Save changes';btn.disabled=false;
+  if(error){alert('Error saving. Please try again.');return}
+  S.profile={...S.profile,vision,bhags,activities:acts};
+  S.dash.acts=acts;
+  renderActsList();
+  showScreen('dashboard');
+}
+
+function regenAll(){
+  if(!confirm('This will take you back through the AI generation flow using your existing answers. Your current vision, BHAGs, and activities will be replaced. Continue?'))return;
+  // restore onboarding answers if stored, otherwise prompt user to redo
+  S.ob.step=1;
+  showScreen('onboarding');
+  renderOb();
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 2 — EMAIL VISION + BHAGS
+// ══════════════════════════════════════════════════════════════
+function emailVision(){
+  const p=S.profile;
+  if(!p?.vision){alert('Your vision has not been set yet.');return}
+  const name=p.name||'';
+  const vision=p.vision||'';
+  const bhags=(p.bhags||[]).map((b,i)=>`${i+1}. ${b.title} (${b.domain})\n   ${b.description}`).join('\n\n');
+  const body=`MY VISION STATEMENT\n${'─'.repeat(40)}\n\n${vision}\n\n\nMY BHAGs\n${'─'.repeat(40)}\n\n${bhags}\n\n\n─────────────────────────────────────\nGenerated by The Daily OS\ndailyos.thesystemscircle.com`;
+  const subject=`${name ? name+"'s" : 'My'} Daily OS — Vision & BHAGs`;
+  const mailto=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href=mailto;
+}
+
+// ══════════════════════════════════════════════════════════════
+// FEATURE 3 — STREAK SHARE CARD
+// ══════════════════════════════════════════════════════════════
+function openShareModal(){
+  generateShareCard();
+  $$('share-modal-bg').style.display='flex';
+}
+function closeShareModal(){
+  $$('share-modal-bg').style.display='none';
+}
+
+function getStreakTagline(streak){
+  if(streak===0)return'The work begins today.';
+  if(streak===1)return'Day one. The hardest one.';
+  if(streak<7)return'Day '+streak+'. The pattern is forming.';
+  if(streak===7)return'Seven days. Still showing up.';
+  if(streak<14)return'Day '+streak+'. The non-negotiables held.';
+  if(streak===14)return'Two weeks. The discipline is real.';
+  if(streak<21)return'Day '+streak+'. Still operating.';
+  if(streak===21)return'21 days. A new standard.';
+  if(streak<30)return'Day '+streak+'. Built different.';
+  if(streak===30)return'30 days. No excuses. No gaps.';
+  if(streak<60)return'Day '+streak+'. Still operating.';
+  if(streak===100)return'Day 100. Rare.';
+  return'Day '+streak+'. Still in the work.';
+}
+
+function generateShareCard(){
+  const canvas=$$('share-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=900,H=900;
+  canvas.width=W;canvas.height=H;
+
+  const streak=parseInt(($$('st-n')||{textContent:'0'}).textContent)||0;
+  const scoreText=($$('sc-t')||{textContent:'0/11'}).textContent||'0/11';
+  const tagline=getStreakTagline(streak);
+
+  // ── Background ──
+  ctx.fillStyle='#085041';
+  ctx.fillRect(0,0,W,H);
+
+  // ── Subtle dot grid ──
+  ctx.fillStyle='rgba(255,255,255,0.03)';
+  for(let x=40;x<W;x+=40){for(let y=40;y<H;y+=40){ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill()}}
+
+  // ── Top label: THE DAILY OS ──
+  ctx.fillStyle='rgba(225,245,238,0.5)';
+  ctx.font='600 22px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.letterSpacing='6px';
+  ctx.textAlign='center';
+  ctx.fillText('THE DAILY OS',W/2,96);
+  ctx.letterSpacing='0px';
+
+  // ── Streak number ──
+  ctx.fillStyle='#EF9F27';
+  ctx.font='500 260px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(String(streak),W/2,H/2-40);
+
+  // ── "days" label under number ──
+  ctx.fillStyle='rgba(225,245,238,0.6)';
+  ctx.font='400 32px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText('days',W/2,H/2+150);
+
+  // ── Divider ──
+  ctx.strokeStyle='rgba(255,255,255,0.1)';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W/2-120,H/2+196);ctx.lineTo(W/2+120,H/2+196);ctx.stroke();
+
+  // ── Score ──
+  ctx.fillStyle='rgba(225,245,238,0.45)';
+  ctx.font='500 26px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText(scoreText+' today',W/2,H/2+238);
+
+  // ── Tagline ──
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.font='400 30px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText(tagline,W/2,H-148);
+
+  // ── URL ──
+  ctx.fillStyle='rgba(225,245,238,0.3)';
+  ctx.font='400 20px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText('dailyos.thesystemscircle.com',W/2,H-80);
+
+  // ── Corner accent ──
+  ctx.strokeStyle='#EF9F27';
+  ctx.lineWidth=2.5;
+  ctx.strokeRect(30,30,W-60,H-60);
+}
+
+async function doShare(){
+  const canvas=$$('share-canvas');
+  const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+  const file=new File([blob],'daily-os-streak.png',{type:'image/png'});
+  const streak=parseInt(($$('st-n')||{textContent:'0'}).textContent)||0;
+  const scoreText=($$('sc-t')||{textContent:'0/11'}).textContent;
+  const text=`Day ${streak}. ${scoreText} today. Still operating. dailyos.thesystemscircle.com`;
+
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],text});closeShareModal();return}catch(e){if(e.name==='AbortError')return}
+  }
+  // fallback: download
+  downloadCard();
+}
+
+function downloadCard(){
+  const canvas=$$('share-canvas');
+  const link=document.createElement('a');
+  link.download='daily-os-streak.png';
+  link.href=canvas.toDataURL('image/png');
+  link.click();
+}
+
 // INIT
 async function init(){
   const{data:{session}}=await sb.auth.getSession();
@@ -986,13 +1243,6 @@ async function init(){
     else{S.ob.name=S.profile?.name||'';showScreen('onboarding');renderOb()}
   }else{showScreen('landing')}
   sb.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='PASSWORD_RECOVERY'){
-      showScreen('auth');
-      const tabs=document.querySelector('.a-tabs');if(tabs)tabs.style.display='none';
-      ['f-signup','f-signin','f-forgot'].forEach(id=>{const el=$$(id);if(el)el.style.display='none'});
-      $$('f-reset-pw').style.display='flex';
-      return;
-    }
     if(event==='SIGNED_IN'&&session&&!S.user){
       S.user=session.user;let p=await loadProfile();
       if(!p){await sb.from('profiles').insert({id:session.user.id,email:session.user.email,name:S.ob.name||session.user.email.split('@')[0],onboarding_complete:false});p=await loadProfile()}
@@ -1003,5 +1253,19 @@ async function init(){
 }
 init();
 </script>
+<!-- ═══════════════════════════════════════ SHARE MODAL ═══ -->
+<div id="share-modal-bg" class="share-modal-bg" style="display:none" onclick="if(event.target===this)closeShareModal()">
+  <div class="share-modal" style="position:relative">
+    <button class="sm-close" onclick="closeShareModal()">×</button>
+    <h3>Share your streak</h3>
+    <p>Your card is ready. Share it wherever you want people to ask what it means.</p>
+    <canvas id="share-canvas" width="900" height="900" style="width:240px;height:240px;border-radius:10px"></canvas>
+    <div class="share-modal-btns">
+      <button class="btn btn-p" onclick="doShare()">Share →</button>
+      <button class="btn btn-o" onclick="downloadCard()">Download</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

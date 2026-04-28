@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Daily OS — The Systems Circle</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#085041">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Daily OS">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -338,6 +344,101 @@ a{color:var(--p);text-decoration:none}
 .share-modal canvas{border-radius:10px;max-width:100%;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto}
 .share-modal-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .sm-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;color:var(--tm);cursor:pointer;font-family:inherit}
+
+/* ── PROGRESS SECTION ── */
+.prg-wrap{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:20px 24px;margin-top:20px}
+.prg-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.prg-hd .sh{margin:0}
+.prg-tabs{display:flex;gap:2px;background:var(--bg);border-radius:var(--rs);padding:3px;border:1px solid var(--bd)}
+.prg-tab{padding:6px 14px;font-size:13px;font-weight:500;border-radius:5px;cursor:pointer;border:none;background:transparent;color:var(--tm);font-family:inherit;transition:all .15s;white-space:nowrap}
+.prg-tab.on{background:var(--card);color:var(--p);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.prg-panel{display:none}.prg-panel.on{display:block}
+.prg-loading{font-size:13px;color:var(--tm);padding:24px 0;text-align:center}
+
+/* Monthly comparison */
+.mo-chart-wrap{position:relative;height:180px;margin-bottom:16px}
+.mo-compare{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding:14px 16px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--bd)}
+.mo-compare-cur{font-size:28px;font-weight:500;color:var(--tx);line-height:1}
+.mo-compare-label{font-size:13px;color:var(--tm);margin-top:2px}
+.mo-compare-delta{font-size:14px;font-weight:500;padding:4px 10px;border-radius:20px}
+.mo-compare-delta.up{background:#dcfce7;color:#15803d}
+.mo-compare-delta.down{background:#fee2e2;color:#dc2626}
+.mo-compare-delta.same{background:var(--pl);color:var(--p)}
+
+/* Year grid */
+.yr-wrap{overflow-x:auto;padding-bottom:8px}
+.yr-months{display:flex;gap:0;margin-bottom:4px;padding-left:0}
+.yr-month-lbl{font-size:10px;color:var(--tm);font-weight:500;flex-shrink:0}
+.yr-grid{display:flex;flex-direction:column;gap:2px}
+.yr-row{display:flex;gap:2px}
+.yr-cell{width:12px;height:12px;border-radius:2px;flex-shrink:0;cursor:default;transition:transform .1s}
+.yr-cell:hover{transform:scale(1.3)}
+.yr-cell.yr-empty{background:transparent}
+.yr-cell.yr-none{background:rgba(0,0,0,0.06)}
+.yr-cell.yr-low{background:#9FE1CB}
+.yr-cell.yr-mid{background:#2CB88A}
+.yr-cell.yr-high{background:#0F6E56}
+.yr-cell.yr-today{outline:2px solid var(--ac);outline-offset:1px}
+.yr-cell.yr-future{background:rgba(0,0,0,0.03)}
+.yr-legend{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:var(--tm)}
+.yr-legend-cells{display:flex;gap:2px}
+.yr-legend-cell{width:10px;height:10px;border-radius:2px}
+.yr-stats{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap}
+.yr-stat{text-align:center}
+.yr-stat-n{font-size:24px;font-weight:500;color:var(--tx);line-height:1}
+.yr-stat-l{font-size:11px;color:var(--tm);margin-top:2px}
+
+/* Share row */
+.prg-share-row{display:flex;justify-content:flex-end;margin-top:14px}
+
+/* ── NOTIFICATION SETTINGS PANEL ── */
+.notif-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;opacity:0;pointer-events:none;transition:opacity .2s}
+.notif-overlay.on{opacity:1;pointer-events:all}
+.notif-panel{position:fixed;top:0;right:0;height:100%;width:min(360px,100%);background:var(--card);z-index:301;transform:translateX(100%);transition:transform .25s ease;padding:28px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.notif-panel.on{transform:translateX(0)}
+.notif-ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.notif-ph h3{font-size:18px;font-weight:500}
+.notif-close{background:none;border:none;font-size:22px;color:var(--tm);cursor:pointer;font-family:inherit;padding:0;line-height:1}
+.notif-section{margin-bottom:24px}
+.notif-section h4{font-size:14px;font-weight:500;margin-bottom:4px}
+.notif-section p{font-size:13px;color:var(--tm);line-height:1.5;margin-bottom:12px}
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd)}
+.notif-row:last-child{border-bottom:none}
+.notif-row-label{font-size:14px;font-weight:500}
+.notif-row-sub{font-size:12px;color:var(--tm);margin-top:1px}
+.notif-time{padding:7px 10px;border:1px solid var(--bd);border-radius:var(--rs);font-size:14px;font-family:inherit;background:var(--bg);color:var(--tx);outline:none;cursor:pointer;transition:border-color .15s}
+.notif-time:focus{border-color:var(--p)}
+.notif-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--bd);margin-bottom:4px}
+.notif-toggle-label{font-size:15px;font-weight:500}
+.toggle-sw{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-sw-track{position:absolute;inset:0;background:var(--bd);border-radius:12px;transition:background .2s}
+.toggle-sw input:checked+.toggle-sw-track{background:var(--p)}
+.toggle-sw-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-sw input:checked~.toggle-sw-thumb{transform:translateX(20px)}
+.notif-save-btn{margin-top:auto;padding-top:24px}
+.notif-pwa-card{background:var(--pl);border-radius:var(--rs);padding:14px 16px;margin-bottom:20px}
+.notif-pwa-card h4{font-size:14px;font-weight:500;color:var(--pd);margin-bottom:4px}
+.notif-pwa-card p{font-size:12px;color:var(--p);line-height:1.5;margin:0}
+
+/* Bell button */
+.bell-btn{background:none;border:none;color:var(--tm);cursor:pointer;padding:6px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:color .15s;position:relative}
+.bell-btn:hover{color:var(--p)}
+.bell-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--ac);border:2px solid var(--card);display:none}
+.bell-dot.on{display:block}
+
+/* Install prompt */
+.install-card{display:none;background:var(--pd);border-radius:var(--rs);padding:14px 16px;margin-bottom:16px}
+.install-card.on{display:block}
+.install-card p{font-size:13px;color:rgba(255,255,255,.8);margin-bottom:10px;line-height:1.5}
+.install-card button{font-size:13px;font-weight:500;background:#EF9F27;color:#fff;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-family:inherit}
+
+@media(max-width:640px){
+  .prg-hd{gap:10px}
+  .yr-cell{width:10px;height:10px}
+  .yr-month-lbl{font-size:9px}
+}
+
 </style>
 </head>
 <body>
@@ -496,6 +597,10 @@ a{color:var(--p);text-decoration:none}
         <button class="da-btn" onclick="emailVision()">Email my vision</button>
       </div>
       <span id="d-un"></span>
+      <button class="bell-btn" onclick="openNotifPanel()" title="Reminder settings" id="bell-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="bell-dot" id="bell-dot"></div>
+      </button>
       <button class="so" onclick="doSignOut()">Sign out</button>
     </div>
   </nav>
@@ -514,6 +619,60 @@ a{color:var(--p);text-decoration:none}
     <div id="d-aw"></div>
     <div class="wkw"><div class="sh">Week at a glance</div><div class="wkc"><canvas id="wkChart"></canvas></div></div>
     <div class="mow"><div class="sh">Month at a glance</div><div class="mod" id="m-dots"></div></div>
+
+    <!-- PROGRESS SECTION -->
+    <div class="prg-wrap">
+      <div class="prg-hd">
+        <div class="sh" style="margin:0">Progress</div>
+        <div class="prg-tabs">
+          <button class="prg-tab on" onclick="prgTab('monthly')">Monthly</button>
+          <button class="prg-tab" onclick="prgTab('year')">Year in review</button>
+        </div>
+      </div>
+
+      <!-- MONTHLY PANEL -->
+      <div class="prg-panel on" id="prg-monthly">
+        <div class="prg-loading" id="prg-mo-loading">Loading monthly data...</div>
+        <div id="prg-mo-content" style="display:none">
+          <div class="mo-compare" id="mo-compare"></div>
+          <div class="mo-chart-wrap"><canvas id="moChart"></canvas></div>
+        </div>
+        <div class="prg-share-row">
+          <button class="share-btn" onclick="shareMonthlyCard()" id="prg-mo-share" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+        </div>
+      </div>
+
+      <!-- YEAR PANEL -->
+      <div class="prg-panel" id="prg-year">
+        <div class="prg-loading" id="prg-yr-loading">Loading your year...</div>
+        <div id="prg-yr-content" style="display:none">
+          <div class="yr-wrap">
+            <div id="yr-month-row" class="yr-months"></div>
+            <div id="yr-grid-rows"></div>
+          </div>
+          <div class="yr-legend">
+            Less
+            <div class="yr-legend-cells">
+              <div class="yr-legend-cell" style="background:rgba(0,0,0,0.06)"></div>
+              <div class="yr-legend-cell" style="background:#9FE1CB"></div>
+              <div class="yr-legend-cell" style="background:#2CB88A"></div>
+              <div class="yr-legend-cell" style="background:#0F6E56"></div>
+            </div>
+            More
+          </div>
+          <div class="yr-stats" id="yr-stats"></div>
+        </div>
+        <div class="prg-share-row">
+          <button class="share-btn" onclick="shareYearCard()" id="prg-yr-share" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share year
+          </button>
+        </div>
+      </div>
+    </div>
     <div class="dft">
       <div class="st-i">Streak: <span class="st-n" id="st-n">0</span> days</div>
       <div style="display:flex;gap:8px;align-items:center">
@@ -959,6 +1118,8 @@ async function initDash(){
   S.dash.logs={};logs.forEach(l=>{S.dash.logs[l.log_date]=l.completed_activities?.length||0});
   S.dash.logs[todayKey()]=S.dash.checked.length;
   renderDash();
+  updateBellDot();
+  checkDueNotifications();
 }
 function renderDash(){renderActsList();updateScores();renderWkChart();renderMoCal()}
 function renderActsList(){
@@ -1234,6 +1395,543 @@ function downloadCard(){
   link.click();
 }
 
+
+
+// ══════════════════════════════════════════════════════════════
+// PWA — SERVICE WORKER REGISTRATION
+// ══════════════════════════════════════════════════════════════
+let deferredInstallPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      await navigator.serviceWorker.register('/sw.js');
+    } catch(e) { console.warn('SW registration failed', e); }
+  });
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const card = $$('install-card');
+  if (card) card.classList.add('on');
+});
+
+function triggerInstallPrompt() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(() => {
+    deferredInstallPrompt = null;
+    const card = $$('install-card');
+    if (card) card.classList.remove('on');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════════════════════════
+function loadNotifSettings() {
+  try {
+    return JSON.parse(localStorage.getItem('dos-notif') || 'null') || { enabled: false, times: ['07:00','12:00','20:00'] };
+  } catch(e) { return { enabled: false, times: ['07:00','12:00','20:00'] }; }
+}
+
+function openNotifPanel() {
+  const s = loadNotifSettings();
+  const en = $$('notif-enabled');
+  if (en) en.checked = s.enabled;
+  ['1','2','3'].forEach((n,i) => {
+    const el = $$('notif-t'+n);
+    if (el) el.value = s.times[i] || ['07:00','12:00','20:00'][i];
+  });
+  onNotifToggle();
+  // Show PWA hint on iOS
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  const hint = $$('notif-pwa-card');
+  if (hint) hint.style.display = (isIOS && !isStandalone) ? 'block' : 'none';
+  $$('notif-overlay')?.classList.add('on');
+  $$('notif-panel')?.classList.add('on');
+}
+
+function closeNotifPanel() {
+  $$('notif-overlay')?.classList.remove('on');
+  $$('notif-panel')?.classList.remove('on');
+}
+
+function onNotifToggle() {
+  const en = $$('notif-enabled')?.checked;
+  const section = $$('notif-times-section');
+  if (section) { section.style.opacity = en ? '1' : '.45'; section.style.pointerEvents = en ? 'all' : 'none'; }
+}
+
+async function saveNotifSettings() {
+  const en = $$('notif-enabled')?.checked;
+  const times = ['notif-t1','notif-t2','notif-t3'].map(id => $$(id)?.value || '07:00');
+
+  if (en) {
+    if (!('Notification' in window)) { alert('Your browser does not support notifications.'); return; }
+    if (Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        alert('Notification permission was not granted. Please enable it in your browser settings.');
+        $$('notif-enabled').checked = false;
+        return;
+      }
+    }
+    if (Notification.permission === 'denied') {
+      alert('Notifications are blocked. Please enable them in your device settings.');
+      $$('notif-enabled').checked = false;
+      return;
+    }
+  }
+
+  localStorage.setItem('dos-notif', JSON.stringify({ enabled: en, times }));
+  updateBellDot();
+  closeNotifPanel();
+  if (en) checkDueNotifications();
+}
+
+function updateBellDot() {
+  const s = loadNotifSettings();
+  const dot = $$('bell-dot');
+  if (dot) dot.classList.toggle('on', s.enabled);
+}
+
+function checkDueNotifications() {
+  const s = loadNotifSettings();
+  if (!s.enabled || Notification.permission !== 'granted') return;
+  // Delegate to service worker for proper handling
+  if (navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'CHECK_NOTIFS',
+      times: s.times,
+      todayKey: todayKey(),
+      userName: S.profile?.name || ''
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PROGRESS — TABS
+// ══════════════════════════════════════════════════════════════
+let prgDataLoaded = false;
+
+function prgTab(name) {
+  document.querySelectorAll('.prg-tab').forEach((t, i) => {
+    t.classList.toggle('on', ['monthly','year'][i] === name);
+  });
+  document.querySelectorAll('.prg-panel').forEach(p => p.classList.remove('on'));
+  $$('prg-' + name)?.classList.add('on');
+  if (!prgDataLoaded) { loadProgressData(); prgDataLoaded = true; }
+}
+
+async function loadProgressData() {
+  await loadMonthlyData();
+  await loadYearData();
+}
+
+// ══════════════════════════════════════════════════════════════
+// PROGRESS — MONTHLY COMPARISON
+// ══════════════════════════════════════════════════════════════
+async function loadMonthlyData() {
+  const loading = $$('prg-mo-loading');
+  const content = $$('prg-mo-content');
+  const shareBtn = $$('prg-mo-share');
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const { data } = await sb.from('daily_logs')
+    .select('log_date,completed_activities')
+    .eq('user_id', S.user.id)
+    .gte('log_date', year + '-01-01')
+    .lte('log_date', year + '-12-31');
+
+  const logs = data || [];
+  const tot = S.dash.acts?.length || 11;
+
+  // Build monthly averages
+  const months = Array.from({length:12}, (_,i) => {
+    const mo = String(i+1).padStart(2,'0');
+    const days = logs.filter(l => l.log_date.startsWith(year+'-'+mo));
+    const today = now.getMonth() === i;
+    const past = i < now.getMonth();
+    if (!days.length && !today && !past) return null; // future month
+    const avg = days.length ? days.reduce((s,l)=>s+(l.completed_activities?.length||0),0)/days.length : 0;
+    const pct = Math.round((avg/tot)*100);
+    return { month:i, name:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i], pct, days:days.length, today, past };
+  });
+
+  const curMonth = months[now.getMonth()];
+  const prevMonth = now.getMonth() > 0 ? months[now.getMonth()-1] : null;
+
+  // Comparison card
+  const compare = $$('mo-compare');
+  if (compare && curMonth) {
+    let deltaHtml = '';
+    if (prevMonth) {
+      const diff = curMonth.pct - prevMonth.pct;
+      const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'same';
+      const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '—';
+      deltaHtml = `<div class="mo-compare-delta ${cls}">${arrow} ${Math.abs(diff)}% vs ${prevMonth.name}</div>`;
+    }
+    compare.innerHTML = `
+      <div>
+        <div class="mo-compare-cur">${curMonth.pct}%</div>
+        <div class="mo-compare-label">${curMonth.name} ${year} average score</div>
+      </div>
+      ${deltaHtml}
+      <div style="font-size:13px;color:var(--tm);margin-left:auto">${curMonth.days} day${curMonth.days!==1?'s':''} tracked</div>`;
+  }
+
+  // Chart
+  const validMonths = months.filter(m => m !== null);
+  S.dash.monthlyData = { months: validMonths, year };
+  renderMonthlyChart(validMonths, now.getMonth());
+
+  if (loading) loading.style.display = 'none';
+  if (content) content.style.display = 'block';
+  if (shareBtn) shareBtn.style.display = 'flex';
+}
+
+function renderMonthlyChart(months, curIdx) {
+  const c = $$('moChart'); if (!c) return;
+  const labels = months.map(m => m.name);
+  const data = months.map(m => m.pct);
+  const bgs = months.map(m => m.month === curIdx ? '#EF9F27' : '#0F6E56');
+  const alphas = months.map(m => m.past || m.today ? '1' : '0.25');
+
+  if (S.dash.moChart) { S.dash.moChart.destroy(); S.dash.moChart = null; }
+  S.dash.moChart = new Chart(c, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: months.map((m,i) => m.month === curIdx ? '#EF9F27' : (m.past ? '#0F6E56' : 'rgba(15,110,86,0.15)')),
+        borderRadius: 5,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '%' } } },
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { size: 11 }, color: '#6B6B67' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+        x: { ticks: { font: { size: 11 }, color: '#6B6B67' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// PROGRESS — YEAR IN REVIEW
+// ══════════════════════════════════════════════════════════════
+async function loadYearData() {
+  const loading = $$('prg-yr-loading');
+  const content = $$('prg-yr-content');
+  const shareBtn = $$('prg-yr-share');
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const { data } = await sb.from('daily_logs')
+    .select('log_date,completed_activities')
+    .eq('user_id', S.user.id)
+    .gte('log_date', year + '-01-01')
+    .lte('log_date', year + '-12-31');
+
+  const logMap = {};
+  (data || []).forEach(l => { logMap[l.log_date] = l.completed_activities?.length || 0; });
+  S.dash.yearData = { logMap, year };
+
+  renderYearGrid(logMap, year, now);
+
+  if (loading) loading.style.display = 'none';
+  if (content) content.style.display = 'block';
+  if (shareBtn) shareBtn.style.display = 'flex';
+}
+
+function renderYearGrid(logMap, year, now) {
+  const tot = S.dash.acts?.length || 11;
+  const todayStr = todayKey();
+
+  // Build a 7-row × 53-col grid (Sun–Sat)
+  const jan1 = new Date(year, 0, 1);
+  const startOffset = jan1.getDay(); // 0=Sun
+  // Total cells: 53 weeks × 7 days
+  const totalCells = 53 * 7;
+
+  // For each cell, map to a date
+  const cells = [];
+  for (let i = 0; i < totalCells; i++) {
+    const dayOffset = i - startOffset;
+    if (dayOffset < 0) { cells.push(null); continue; }
+    const d = new Date(year, 0, 1 + dayOffset);
+    if (d.getFullYear() !== year) { cells.push(null); continue; }
+    const key = d.toISOString().split('T')[0];
+    const isFuture = d > now;
+    const isToday = key === todayStr;
+    const score = logMap[key] || 0;
+    const pct = (score / tot) * 100;
+    let cls = 'yr-cell';
+    if (isFuture) cls += ' yr-future';
+    else if (score === 0) cls += ' yr-none';
+    else if (pct < 36) cls += ' yr-low';
+    else if (pct < 73) cls += ' yr-mid';
+    else cls += ' yr-high';
+    if (isToday) cls += ' yr-today';
+    const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+    cells.push({ key, cls, day: d.getDate(), mo, col: Math.floor(i/7), row: i%7, d });
+  }
+
+  // Month label positions (which column each month starts at)
+  const moLabels = {};
+  cells.forEach(c => {
+    if (!c) return;
+    if (c.d.getDate() <= 7 && !moLabels[c.mo]) moLabels[c.mo] = c.col;
+  });
+
+  // Build month label row
+  const moRow = $$('yr-month-row');
+  if (moRow) {
+    const CELL = 12, GAP = 2;
+    const cellW = CELL + GAP;
+    let html = '';
+    Object.entries(moLabels).forEach(([mo, col]) => {
+      html += `<div class="yr-month-lbl" style="position:absolute;left:${col*cellW}px">${mo}</div>`;
+    });
+    moRow.style.position = 'relative';
+    moRow.style.height = '16px';
+    moRow.innerHTML = html;
+  }
+
+  // Build 7 rows
+  const gridEl = $$('yr-grid-rows');
+  if (gridEl) {
+    let rowsHtml = '';
+    for (let row = 0; row < 7; row++) {
+      rowsHtml += '<div class="yr-row">';
+      for (let col = 0; col < 53; col++) {
+        const cell = cells[col * 7 + row];
+        if (!cell) { rowsHtml += '<div class="yr-cell yr-empty"></div>'; }
+        else { rowsHtml += `<div class="${cell.cls}" title="${cell.key}"></div>`; }
+      }
+      rowsHtml += '</div>';
+    }
+    gridEl.innerHTML = rowsHtml;
+  }
+
+  // Stats
+  const statsEl = $$('yr-stats');
+  if (statsEl) {
+    const activeDays = Object.values(logMap).filter(s => s >= 8).length;
+    const totalTracked = Object.keys(logMap).length;
+    const avgScore = totalTracked ? Math.round((Object.values(logMap).reduce((a,b)=>a+b,0) / totalTracked / tot) * 100) : 0;
+    // Best streak
+    let best = 0, cur = 0;
+    const allDays = cells.filter(c => c && !c.cls.includes('yr-future')).map(c => c.key).sort();
+    allDays.forEach(k => { if ((logMap[k]||0) >= 8) { cur++; best = Math.max(best,cur); } else cur = 0; });
+    statsEl.innerHTML = [
+      { n: activeDays, l: 'strong days (8+)' },
+      { n: best, l: 'best streak' },
+      { n: avgScore + '%', l: 'avg daily score' },
+      { n: totalTracked, l: 'days tracked' }
+    ].map(s => `<div class="yr-stat"><div class="yr-stat-n">${s.n}</div><div class="yr-stat-l">${s.l}</div></div>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// SHARE CARDS — MONTHLY
+// ══════════════════════════════════════════════════════════════
+async function shareMonthlyCard() {
+  const canvas = $$('share-monthly-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1000, H = 580;
+  canvas.width = W; canvas.height = H;
+
+  const months = S.dash.monthlyData?.months || [];
+  const year = S.dash.monthlyData?.year || new Date().getFullYear();
+  const now = new Date();
+  const curIdx = now.getMonth();
+  const tot = S.dash.acts?.length || 11;
+
+  // BG
+  ctx.fillStyle = '#085041';
+  ctx.fillRect(0, 0, W, H);
+
+  // Dot grid
+  ctx.fillStyle = 'rgba(255,255,255,0.025)';
+  for (let x = 40; x < W; x += 40) for (let y = 40; y < H; y += 40) { ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI*2); ctx.fill(); }
+
+  // Border
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(20, 20, W-40, H-40);
+
+  // Header
+  ctx.fillStyle = 'rgba(225,245,238,0.45)'; ctx.font = '600 16px -apple-system,sans-serif';
+  ctx.textAlign = 'left'; ctx.fillText('THE DAILY OS', 44, 56);
+  ctx.fillStyle = '#EF9F27'; ctx.font = '500 32px -apple-system,sans-serif';
+  ctx.fillText('Monthly Performance', 44, 96);
+  ctx.fillStyle = 'rgba(225,245,238,0.4)'; ctx.font = '400 18px -apple-system,sans-serif';
+  ctx.fillText(String(year), W - 80, 56); ctx.textAlign = 'left';
+
+  // Bars
+  if (months.length) {
+    const barW = 36, barGap = (W - 88 - months.length * barW) / (months.length - 1);
+    const maxH = 280, barY = 380;
+    months.forEach((m, i) => {
+      const x = 44 + i * (barW + barGap);
+      const h = Math.max(4, Math.round((m.pct / 100) * maxH));
+      const isCur = m.month === curIdx;
+      ctx.fillStyle = isCur ? '#EF9F27' : (m.past ? '#0F6E56' : 'rgba(15,110,86,0.2)');
+      // Bar
+      const radius = 4;
+      ctx.beginPath();
+      ctx.roundRect(x, barY - h, barW, h, [radius, radius, 0, 0]);
+      ctx.fill();
+      // Pct label on current
+      if (isCur) {
+        ctx.fillStyle = '#EF9F27'; ctx.font = '600 14px -apple-system,sans-serif';
+        ctx.textAlign = 'center'; ctx.fillText(m.pct + '%', x + barW/2, barY - h - 10);
+      }
+      // Month label
+      ctx.fillStyle = isCur ? '#EF9F27' : 'rgba(225,245,238,0.5)';
+      ctx.font = (isCur ? '600' : '400') + ' 13px -apple-system,sans-serif';
+      ctx.textAlign = 'center'; ctx.fillText(m.name, x + barW/2, barY + 22);
+    });
+  }
+
+  // Baseline
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(44, 380); ctx.lineTo(W-44, 380); ctx.stroke();
+
+  // URL
+  ctx.fillStyle = 'rgba(225,245,238,0.25)'; ctx.font = '400 15px -apple-system,sans-serif';
+  ctx.textAlign = 'center'; ctx.fillText('dailyos.thesystemscircle.com', W/2, H - 36);
+
+  await shareCanvas(canvas, 'monthly-performance');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SHARE CARDS — YEAR IN REVIEW
+// ══════════════════════════════════════════════════════════════
+async function shareYearCard() {
+  const canvas = $$('share-year-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1000, H = 580;
+  canvas.width = W; canvas.height = H;
+
+  const { logMap, year } = S.dash.yearData || { logMap: {}, year: new Date().getFullYear() };
+  const tot = S.dash.acts?.length || 11;
+  const now = new Date();
+
+  // BG
+  ctx.fillStyle = '#085041';
+  ctx.fillRect(0, 0, W, H);
+
+  // Dot grid
+  ctx.fillStyle = 'rgba(255,255,255,0.02)';
+  for (let x = 30; x < W; x += 30) for (let y = 30; y < H; y += 30) { ctx.beginPath(); ctx.arc(x, y, 1.2, 0, Math.PI*2); ctx.fill(); }
+
+  // Border
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(20, 20, W-40, H-40);
+
+  // Header
+  ctx.fillStyle = 'rgba(225,245,238,0.45)'; ctx.font = '600 16px -apple-system,sans-serif';
+  ctx.textAlign = 'left'; ctx.fillText('THE DAILY OS', 44, 60);
+  ctx.fillStyle = '#EF9F27'; ctx.font = '500 30px -apple-system,sans-serif';
+  ctx.fillText(year + ' — Year in Review', 44, 96);
+
+  // Build grid
+  const jan1 = new Date(year, 0, 1);
+  const startOffset = jan1.getDay();
+  const CELL = 11, GAP = 2, CELLW = CELL + GAP;
+  const gridX = 44, gridY = 120;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const moDrawn = {};
+
+  for (let col = 0; col < 53; col++) {
+    for (let row = 0; row < 7; row++) {
+      const dayOffset = col * 7 + row - startOffset;
+      if (dayOffset < 0) continue;
+      const d = new Date(year, 0, 1 + dayOffset);
+      if (d.getFullYear() !== year) continue;
+      const key = d.toISOString().split('T')[0];
+      const isFuture = d > now;
+      const score = logMap[key] || 0;
+      const pct = (score / tot) * 100;
+
+      let color;
+      if (isFuture) color = 'rgba(255,255,255,0.04)';
+      else if (score === 0) color = 'rgba(255,255,255,0.07)';
+      else if (pct < 36) color = '#2CB88A55';
+      else if (pct < 73) color = '#2CB88A';
+      else color = '#E1F5EE';
+
+      const x = gridX + col * CELLW;
+      const y = gridY + 18 + row * CELLW;
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.roundRect(x, y, CELL, CELL, 2); ctx.fill();
+
+      // Month label (first week of each month)
+      const mo = d.getMonth();
+      if (d.getDate() <= 7 && !moDrawn[mo]) {
+        moDrawn[mo] = true;
+        ctx.fillStyle = 'rgba(225,245,238,0.4)';
+        ctx.font = '400 10px -apple-system,sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(months[mo], x, gridY + 14);
+      }
+    }
+  }
+
+  // Stats row
+  const activeDays = Object.values(logMap).filter(s => s >= 8).length;
+  const totalTracked = Object.keys(logMap).length;
+  const avgPct = totalTracked ? Math.round((Object.values(logMap).reduce((a,b)=>a+b,0)/totalTracked/tot)*100) : 0;
+  let best = 0, cur = 0;
+  Object.keys(logMap).sort().forEach(k => { if ((logMap[k]||0)>=8){cur++;best=Math.max(best,cur);}else cur=0; });
+
+  const stats = [
+    { n: activeDays, l: 'strong days' },
+    { n: best, l: 'best streak' },
+    { n: avgPct + '%', l: 'avg score' },
+    { n: totalTracked, l: 'days tracked' }
+  ];
+
+  const statY = gridY + 18 + 7 * CELLW + 28;
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(44, statY - 12); ctx.lineTo(W-44, statY - 12); ctx.stroke();
+
+  stats.forEach((s, i) => {
+    const statX = 44 + i * 220;
+    ctx.fillStyle = '#EF9F27'; ctx.font = '500 28px -apple-system,sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText(String(s.n), statX, statY + 24);
+    ctx.fillStyle = 'rgba(225,245,238,0.5)'; ctx.font = '400 13px -apple-system,sans-serif';
+    ctx.fillText(s.l, statX, statY + 44);
+  });
+
+  // URL
+  ctx.fillStyle = 'rgba(225,245,238,0.25)'; ctx.font = '400 14px -apple-system,sans-serif';
+  ctx.textAlign = 'center'; ctx.fillText('dailyos.thesystemscircle.com', W/2, H - 36);
+
+  await shareCanvas(canvas, 'year-in-review');
+}
+
+async function shareCanvas(canvas, filename) {
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  const file = new File([blob], 'daily-os-' + filename + '.png', { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; } catch(e) { if (e.name === 'AbortError') return; }
+  }
+  // Fallback: download
+  const link = document.createElement('a');
+  link.download = 'daily-os-' + filename + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
 // INIT
 async function init(){
   const{data:{session}}=await sb.auth.getSession();
@@ -1266,6 +1964,63 @@ init();
     </div>
   </div>
 </div>
+
+
+<!-- ═══════════════════════════════════════ NOTIFICATION PANEL ═══ -->
+<div id="notif-overlay" class="notif-overlay" onclick="closeNotifPanel()"></div>
+<div id="notif-panel" class="notif-panel">
+  <div class="notif-ph">
+    <h3>Daily reminders</h3>
+    <button class="notif-close" onclick="closeNotifPanel()">×</button>
+  </div>
+
+  <div id="notif-pwa-card" class="notif-pwa-card" style="display:none">
+    <h4>Add to home screen for best results</h4>
+    <p>Install The Daily OS on your phone for background notifications that work even when the app is closed.</p>
+  </div>
+
+  <div id="install-card" class="install-card">
+    <p>Install The Daily OS on your home screen for the full app experience and background reminders.</p>
+    <button onclick="triggerInstallPrompt()">Add to home screen</button>
+  </div>
+
+  <div class="notif-section">
+    <div class="notif-toggle-row">
+      <span class="notif-toggle-label">Enable reminders</span>
+      <label class="toggle-sw">
+        <input type="checkbox" id="notif-enabled" onchange="onNotifToggle()">
+        <div class="toggle-sw-track"></div>
+        <div class="toggle-sw-thumb"></div>
+      </label>
+    </div>
+    <p style="font-size:13px;color:var(--tm);line-height:1.5;padding-top:8px">You will get three gentle reminders each day — at the times you set below.</p>
+  </div>
+
+  <div class="notif-section" id="notif-times-section" style="opacity:.45;pointer-events:none;transition:opacity .2s">
+    <h4>Reminder times</h4>
+    <p>Set times that match your routine.</p>
+    <div class="notif-row">
+      <div><div class="notif-row-label">Morning</div><div class="notif-row-sub">Start the day with intention</div></div>
+      <input type="time" class="notif-time" id="notif-t1" value="07:00">
+    </div>
+    <div class="notif-row">
+      <div><div class="notif-row-label">Midday</div><div class="notif-row-sub">Midday check-in</div></div>
+      <input type="time" class="notif-time" id="notif-t2" value="12:00">
+    </div>
+    <div class="notif-row">
+      <div><div class="notif-row-label">Evening</div><div class="notif-row-sub">Close the day strong</div></div>
+      <input type="time" class="notif-time" id="notif-t3" value="20:00">
+    </div>
+  </div>
+
+  <div class="notif-save-btn">
+    <button class="btn btn-p btn-full" onclick="saveNotifSettings()">Save settings</button>
+  </div>
+</div>
+
+<!-- Hidden canvases for share card generation -->
+<canvas id="share-monthly-canvas" width="1000" height="580" style="display:none"></canvas>
+<canvas id="share-year-canvas" width="1000" height="580" style="display:none"></canvas>
 
 </body>
 </html>

@@ -331,10 +331,17 @@ a{color:var(--p);text-decoration:none}
 .share-btn:hover{background:var(--p)}
 .share-btn svg{flex-shrink:0}
 
-/* ── EMAIL + EDIT BUTTONS in dash nav ── */
-.dash-actions{display:flex;align-items:center;gap:8px}
-.da-btn{font-size:13px;color:var(--tm);background:none;border:1px solid var(--bd);border-radius:var(--rs);padding:6px 12px;cursor:pointer;font-family:inherit;transition:all .15s}
+/* ── DASH TOP ROW — greeting + action buttons ── */
+.dash-top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:4px;flex-wrap:wrap}
+.dash-top-row .d-gr{margin-bottom:0;flex:1;min-width:0}
+.dash-action-row{display:flex;gap:8px;flex-shrink:0;padding-top:4px;flex-wrap:wrap}
+.da-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--tm);background:var(--card);border:1px solid var(--bd);border-radius:var(--rs);padding:7px 13px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
 .da-btn:hover{border-color:var(--p);color:var(--p)}
+@media(max-width:480px){
+  .dash-top-row{flex-direction:column;gap:10px}
+  .dash-action-row{width:100%}
+  .da-btn{flex:1;justify-content:center}
+}
 
 /* ── SHARE MODAL ── */
 .share-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -437,6 +444,43 @@ a{color:var(--p);text-decoration:none}
   .prg-hd{gap:10px}
   .yr-cell{width:10px;height:10px}
   .yr-month-lbl{font-size:9px}
+}
+
+
+
+/* ── WELCOME CAROUSEL ── */
+#screen-welcome{overflow:hidden}
+#screen-welcome.active{display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+.wc-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.wc-logo{font-size:17px;font-weight:500}.wc-logo span{color:var(--p)}
+.wc-skip{font-size:13px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 0;transition:color .15s}
+.wc-skip:hover{color:var(--p)}
+.wc-track-wrap{flex:1;overflow:hidden;position:relative;min-height:0}
+.wc-track{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1);height:100%;align-items:stretch}
+.wc-slide{min-width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 32px 24px;text-align:center;flex-shrink:0}
+.wc-slide-ic{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;flex-shrink:0}
+.wc-slide-ic.green{background:var(--pl);color:var(--p)}
+.wc-slide-ic.amber{background:#FAEEDA;color:#C77A0A}
+.wc-slide-ic.purple{background:#F3F0FF;color:#6D42C2}
+.wc-slide-ic.blue{background:#EFF6FF;color:#1D6FA8}
+.wc-slide h2{font-size:24px;font-weight:500;line-height:1.3;margin-bottom:14px;max-width:340px}
+.wc-slide p{font-size:15px;color:var(--tm);line-height:1.7;max-width:340px;margin:0 auto}
+.wc-slide p strong{color:var(--tx)}
+.wc-slide-tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--p);background:var(--pl);padding:4px 12px;border-radius:20px;margin-bottom:18px;display:inline-block}
+.wc-footer{padding:20px 24px 36px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.wc-dots{display:flex;gap:8px;align-items:center}
+.wc-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);transition:all .3s;cursor:pointer;border:none;padding:0}
+.wc-dot.on{width:24px;border-radius:4px;background:var(--p)}
+.wc-nav{display:flex;gap:10px;width:100%;max-width:360px}
+.wc-nav .btn{flex:1}
+.wc-nav .btn-o{flex:0 0 auto;padding:12px 20px}
+/* Final slide CTA */
+.wc-final-cta{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;margin-top:8px}
+.wc-hint{font-size:12px;color:var(--tm);text-align:center;line-height:1.5}
+@media(max-width:360px){
+  .wc-slide{padding:24px 20px 16px}
+  .wc-slide h2{font-size:21px}
+  .wc-slide p{font-size:14px}
 }
 
 </style>
@@ -582,9 +626,85 @@ a{color:var(--p);text-decoration:none}
   <div class="ob-done">
     <div class="od-ic">✓</div>
     <h2>Your Daily OS is ready.</h2>
-    <p>Your vision is set. Your BHAGs are defined. Your 11 daily activities are locked in. Now it is time to operate.</p>
-    <button class="btn btn-p btn-full" onclick="startDash()">Start tracking today →</button>
+    <p>Your vision is set. Your BHAGs are defined. Your 11 daily activities are locked in.</p>
+    <button class="btn btn-p btn-full" onclick="showScreen('welcome')">See what's next →</button>
   </div>
+</div>
+
+<!-- ═══════════════════════════════════════ WELCOME CAROUSEL ═══ -->
+<div id="screen-welcome" class="screen">
+
+  <!-- Top bar -->
+  <div class="wc-header">
+    <div class="wc-logo">The Daily <span>OS</span></div>
+    <button class="wc-skip" onclick="startDash()">Skip</button>
+  </div>
+
+  <!-- Slides -->
+  <div class="wc-track-wrap">
+    <div class="wc-track" id="wc-track">
+
+      <!-- SLIDE 1 — Track your day -->
+      <div class="wc-slide">
+        <div class="wc-slide-ic green">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="wc-slide-tag">Step 1 of 4</div>
+        <h2>Check off your 11 activities every day</h2>
+        <p>Tap each activity as you complete it. Your score updates in real time. Hit <strong>8 or more out of 11</strong> and your streak grows.<br><br>The goal is not perfection. It is consistency.</p>
+      </div>
+
+      <!-- SLIDE 2 — Reminders -->
+      <div class="wc-slide">
+        <div class="wc-slide-ic amber">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="wc-slide-tag">Step 2 of 4</div>
+        <h2>Turn on your three daily reminders</h2>
+        <p>Tap the <strong>bell icon</strong> in the top-right corner of your dashboard. Set your morning, midday, and evening times.<br><br>The app will check in with you three times a day so nothing slips.</p>
+      </div>
+
+      <!-- SLIDE 3 — Install -->
+      <div class="wc-slide">
+        <div class="wc-slide-ic purple">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="wc-slide-tag">Step 3 of 4</div>
+        <h2>Install it on your home screen</h2>
+        <p><strong>Android:</strong> tap the three-dot menu in Chrome → <strong>Add to Home Screen.</strong><br><br><strong>iPhone:</strong> tap the Share icon in Safari → <strong>Add to Home Screen.</strong><br><br>It opens full-screen, just like a real app.</p>
+      </div>
+
+      <!-- SLIDE 4 — Share -->
+      <div class="wc-slide">
+        <div class="wc-slide-ic blue">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <div class="wc-slide-tag">Step 4 of 4</div>
+        <h2>Share your streak when it starts building</h2>
+        <p>Once you have a streak going, tap <strong>Share streak</strong> on the dashboard. It generates a card with your numbers — built for WhatsApp, Instagram, and Twitter.<br><br>The numbers will raise questions. That is the point.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer: dots + nav -->
+  <div class="wc-footer">
+    <div class="wc-dots" id="wc-dots">
+      <button class="wc-dot on" onclick="wcGo(0)"></button>
+      <button class="wc-dot" onclick="wcGo(1)"></button>
+      <button class="wc-dot" onclick="wcGo(2)"></button>
+      <button class="wc-dot" onclick="wcGo(3)"></button>
+    </div>
+    <div class="wc-nav" id="wc-nav">
+      <button class="btn btn-o" id="wc-back" onclick="wcPrev()" style="display:none">Back</button>
+      <button class="btn btn-p" id="wc-next" onclick="wcNext()">Next →</button>
+    </div>
+    <div class="wc-final-cta" id="wc-final" style="display:none">
+      <button class="btn btn-p btn-full" onclick="startDash()">Start tracking today →</button>
+      <p class="wc-hint">You can edit your vision, BHAGs, and activities at any time from the dashboard.</p>
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══════════════════════════════════════ DASHBOARD ═══ -->
@@ -592,11 +712,6 @@ a{color:var(--p);text-decoration:none}
   <nav class="dn">
     <div class="logo">The Daily <span>OS</span></div>
     <div class="dn-r">
-      <div class="dash-actions">
-        <button class="da-btn" onclick="openEditProfile()">Edit vision</button>
-        <button class="da-btn" onclick="emailVision()">Email my vision</button>
-      </div>
-      <span id="d-un"></span>
       <button class="bell-btn" onclick="openNotifPanel()" title="Reminder settings" id="bell-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <div class="bell-dot" id="bell-dot"></div>
@@ -606,7 +721,19 @@ a{color:var(--p);text-decoration:none}
   </nav>
   <div class="di">
     <div class="d-dt" id="d-dt"></div>
-    <div class="d-gr" id="d-gr"></div>
+    <div class="dash-top-row">
+      <div class="d-gr" id="d-gr"></div>
+      <div class="dash-action-row">
+        <button class="da-btn" onclick="openEditProfile()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit vision
+        </button>
+        <button class="da-btn" onclick="emailVision()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email my vision
+        </button>
+      </div>
+    </div>
     <div class="sc-g">
       <div class="sc"><div class="sc-l">Today</div><div class="sc-v" id="sc-t">0/11</div><div class="sc-s" id="sc-tp">0%</div></div>
       <div class="sc"><div class="sc-l">This week</div><div class="sc-v" id="sc-w">0%</div><div class="sc-s">avg daily score</div></div>
@@ -1931,6 +2058,54 @@ async function shareCanvas(canvas, filename) {
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
+
+
+
+// ══════════════════════════════════════════════════════════════
+// WELCOME CAROUSEL
+// ══════════════════════════════════════════════════════════════
+let wcCur = 0;
+const WC_TOTAL = 4;
+
+function wcGo(idx) {
+  wcCur = Math.max(0, Math.min(WC_TOTAL - 1, idx));
+  const track = $$('wc-track');
+  if (track) track.style.transform = `translateX(-${wcCur * 100}%)`;
+
+  // Dots
+  document.querySelectorAll('.wc-dot').forEach((d, i) => d.classList.toggle('on', i === wcCur));
+
+  // Back button
+  const back = $$('wc-back');
+  if (back) back.style.display = wcCur > 0 ? 'inline-flex' : 'none';
+
+  // On last slide: swap nav for final CTA
+  const nav = $$('wc-nav');
+  const final = $$('wc-final');
+  const isLast = wcCur === WC_TOTAL - 1;
+  if (nav) nav.style.display = isLast ? 'none' : 'flex';
+  if (final) final.style.display = isLast ? 'flex' : 'none';
+}
+
+function wcNext() { wcGo(wcCur + 1); }
+function wcPrev() { wcGo(wcCur - 1); }
+
+// Touch/swipe support
+(function() {
+  let startX = 0, dragging = false;
+  document.addEventListener('touchstart', e => {
+    if (!$$('screen-welcome')?.classList.contains('active')) return;
+    startX = e.touches[0].clientX; dragging = true;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (!dragging) return; dragging = false;
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { if (diff > 0) wcNext(); else wcPrev(); }
+  }, { passive: true });
+})();
+
+// Reset carousel when the screen opens
+const _origShowScreen = showScreen;
 
 // INIT
 async function init(){

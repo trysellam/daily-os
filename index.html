@@ -449,39 +449,39 @@ a{color:var(--p);text-decoration:none}
 
 
 /* ── WELCOME CAROUSEL ── */
-#screen-welcome{overflow:hidden}
+#screen-welcome{overflow:hidden;position:relative}
 #screen-welcome.active{display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
-.wc-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.wc-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .wc-logo{font-size:17px;font-weight:500}.wc-logo span{color:var(--p)}
 .wc-skip{font-size:13px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 0;transition:color .15s}
 .wc-skip:hover{color:var(--p)}
-.wc-track-wrap{flex:1;overflow:hidden;position:relative;min-height:0}
-.wc-track{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1);height:100%;align-items:stretch}
-.wc-slide{min-width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 32px 24px;text-align:center;flex-shrink:0}
-.wc-slide-ic{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;flex-shrink:0}
+/* track-wrap: clips slides, fills available vertical space */
+.wc-track-wrap{flex:1;width:100%;overflow:hidden;position:relative;min-height:0}
+/* track: sits inside wrap, slides horizontally via transform */
+.wc-track{display:flex;width:400%;transition:transform .4s cubic-bezier(.4,0,.2,1);height:100%}
+/* each slide: exactly 25% of track width = 100% of viewport */
+.wc-slide{width:25%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px 20px;text-align:center;box-sizing:border-box;overflow:hidden}
+.wc-slide-ic{width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;flex-shrink:0}
 .wc-slide-ic.green{background:var(--pl);color:var(--p)}
 .wc-slide-ic.amber{background:#FAEEDA;color:#C77A0A}
 .wc-slide-ic.purple{background:#F3F0FF;color:#6D42C2}
 .wc-slide-ic.blue{background:#EFF6FF;color:#1D6FA8}
-.wc-slide h2{font-size:24px;font-weight:500;line-height:1.3;margin-bottom:14px;max-width:340px}
-.wc-slide p{font-size:15px;color:var(--tm);line-height:1.7;max-width:340px;margin:0 auto}
+.wc-slide h2{font-size:22px;font-weight:500;line-height:1.35;margin-bottom:14px;width:100%;max-width:300px}
+.wc-slide p{font-size:14px;color:var(--tm);line-height:1.75;width:100%;max-width:300px;margin:0 auto}
 .wc-slide p strong{color:var(--tx)}
-.wc-slide-tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--p);background:var(--pl);padding:4px 12px;border-radius:20px;margin-bottom:18px;display:inline-block}
-.wc-footer{padding:20px 24px 36px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.wc-slide-tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--p);background:var(--pl);padding:4px 12px;border-radius:20px;margin-bottom:16px;display:inline-block}
+.wc-footer{padding:16px 24px 40px;display:flex;flex-direction:column;align-items:center;gap:16px;flex-shrink:0}
 .wc-dots{display:flex;gap:8px;align-items:center}
 .wc-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);transition:all .3s;cursor:pointer;border:none;padding:0}
 .wc-dot.on{width:24px;border-radius:4px;background:var(--p)}
 .wc-nav{display:flex;gap:10px;width:100%;max-width:360px}
 .wc-nav .btn{flex:1}
 .wc-nav .btn-o{flex:0 0 auto;padding:12px 20px}
-/* Final slide CTA */
-.wc-final-cta{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;margin-top:8px}
+.wc-final-cta{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px}
 .wc-hint{font-size:12px;color:var(--tm);text-align:center;line-height:1.5}
-@media(max-width:360px){
-  .wc-slide{padding:24px 20px 16px}
-  .wc-slide h2{font-size:21px}
-  .wc-slide p{font-size:14px}
-}
+/* How to use link on dashboard */
+.how-link{font-size:13px;color:var(--tm);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline;text-underline-offset:3px;transition:color .15s}
+.how-link:hover{color:var(--p)}
 
 </style>
 </head>
@@ -671,7 +671,7 @@ a{color:var(--p);text-decoration:none}
         </div>
         <div class="wc-slide-tag">Step 3 of 4</div>
         <h2>Install it on your home screen</h2>
-        <p><strong>Android:</strong> tap the three-dot menu in Chrome → <strong>Add to Home Screen.</strong><br><br><strong>iPhone:</strong> tap the Share icon in Safari → <strong>Add to Home Screen.</strong><br><br>It opens full-screen, just like a real app.</p>
+        <p><strong>Android:</strong> tap the three-dot menu in Chrome → <strong>Add to Home Screen.</strong><br><br><strong>iPhone (Safari):</strong> tap the Share icon → <strong>Add to Home Screen.</strong><br><br><strong>iPhone (Chrome):</strong> tap the three-dot menu → <strong>Add to Home Screen.</strong><br><br>It opens full-screen, just like a real app.</p>
       </div>
 
       <!-- SLIDE 4 — Share -->
@@ -2070,7 +2070,7 @@ const WC_TOTAL = 4;
 function wcGo(idx) {
   wcCur = Math.max(0, Math.min(WC_TOTAL - 1, idx));
   const track = $$('wc-track');
-  if (track) track.style.transform = `translateX(-${wcCur * 100}%)`;
+  if (track) track.style.transform = `translateX(-${wcCur * 25}%)`;
 
   // Dots
   document.querySelectorAll('.wc-dot').forEach((d, i) => d.classList.toggle('on', i === wcCur));
@@ -2089,6 +2089,7 @@ function wcGo(idx) {
 
 function wcNext() { wcGo(wcCur + 1); }
 function wcPrev() { wcGo(wcCur - 1); }
+function replayCarousel() { showScreen('welcome'); }
 
 // Touch/swipe support
 (function() {

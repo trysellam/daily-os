@@ -1,15 +1,11 @@
-const CACHE = 'daily-os-v2';
+const CACHE = 'daily-os-v3';
 const SHELL = ['/'];
 
-// ── Install: cache app shell ──
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {})
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}));
   self.skipWaiting();
 });
 
-// ── Activate: clean old caches ──
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -18,32 +14,35 @@ self.addEventListener('activate', e => {
   );
 });
 
-// ── Fetch: network first for API, cache first for shell ──
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  if (url.pathname.startsWith('/api/')) return; // never intercept API calls
+  if (url.pathname.startsWith('/api/')) return;
   if (e.request.mode === 'navigate') {
-    e.respondWith(
-      fetch(e.request).catch(() => caches.match('/'))
-    );
+    e.respondWith(fetch(e.request).catch(() => caches.match('/')));
     return;
   }
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
 
-// ── Messages from the app ──
+// ── Handle messages from the app ──
 self.addEventListener('message', e => {
-  if (e.data?.type === 'CHECK_NOTIFS') {
-    checkDueNotifications(e.data.times, e.data.todayKey, e.data.userName);
+  if (e.data?.type === 'SHOW_NOTIF') {
+    const { title, body, tag } = e.data;
+    e.waitUntil(
+      self.registration.showNotification(title, {
+        body,
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        tag: tag || 'daily-os',
+        silent: false,
+        data: { url: '/' }
+      })
+    );
   }
-  if (e.data?.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (e.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
-// ── Push (for future server-sent push) ──
+// ── Push (future server-sent push) ──
 self.addEventListener('push', e => {
   const data = e.data?.json() || {};
   e.waitUntil(
@@ -57,7 +56,7 @@ self.addEventListener('push', e => {
   );
 });
 
-// ── Notification click ──
+// ── Notification click → open app ──
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(
@@ -68,44 +67,3 @@ self.addEventListener('notificationclick', e => {
     })
   );
 });
-
-// ── Check if a notification is due ──
-async function checkDueNotifications(times, todayKey, userName) {
-  if (!times || !times.length) return;
-  const now = new Date();
-  const h = now.getHours(), m = now.getMinutes();
-  const nowMins = h * 60 + m;
-
-  const messages = [
-    { title: 'Good morning, ' + (userName || 'there') + '.', body: 'Your non-negotiables are waiting. How many will you complete today?' },
-    { title: 'Midday check-in.', body: 'How are your 11 activities looking? There is still time.' },
-    { title: 'Evening review.', body: 'Close the day strong. Lock in everything you can before midnight.' }
-  ];
-
-  for (let i = 0; i < times.length; i++) {
-    const [th, tm] = times[i].split(':').map(Number);
-    if (isNaN(th) || isNaN(tm)) continue;
-    const targetMins = th * 60 + tm;
-    const diffMins = nowMins - targetMins;
-
-    // Show if within 30 minutes past the scheduled time
-    if (diffMins >= 0 && diffMins <= 30) {
-      const notifKey = `notif-${todayKey}-${i}`;
-      // Check cache to avoid repeats
-      const cache = await caches.open('notif-state');
-      const shown = await cache.match(notifKey);
-      if (!shown) {
-        const msg = messages[i] || messages[0];
-        await self.registration.showNotification(msg.title, {
-          body: msg.body,
-          icon: '/icon-192.png',
-          badge: '/icon-192.png',
-          tag: 'daily-os-' + i,
-          silent: false,
-          data: { url: '/' }
-        });
-        await cache.put(notifKey, new Response('shown'));
-      }
-    }
-  }
-}

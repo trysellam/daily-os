@@ -34,7 +34,8 @@ a{color:var(--p);text-decoration:none}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:var(--rs);font-size:15px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
 .btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}.btn-p:disabled{opacity:.6;cursor:not-allowed}
 .btn-o{background:transparent;color:var(--tx);border:1px solid var(--bdh)}.btn-o:hover{border-color:var(--p);color:var(--p)}
-.btn-sm{padding:8px 16px;font-size:14px}.btn-full{width:100%}
+.btn-sm{padding:8px 16px;font-size:14px}
+.btn-a{background:var(--ac);color:#fff}.btn-a:hover{background:#D4880A}.btn-full{width:100%}
 
 /* ── LANDING ── */
 .ln{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;max-width:1100px;margin:0 auto;gap:16px}
@@ -1032,7 +1033,7 @@ a{color:var(--p);text-decoration:none}
     <div class="sc-cta-block">
       <h2>Ready to build your income system?</h2>
       <p>Applications take less than five minutes. There are no right or wrong answers — only the right or wrong fit. We review every application within 48 hours.</p>
-      <button class="btn btn-w" style="font-size:16px;padding:14px 36px" onclick="window.open('https://forms.gle/cbwuqjFgdoruU1416','_blank')">Apply for founding membership</button>
+      <button class="btn btn-a" style="font-size:16px;padding:14px 36px" onclick="window.open('https://forms.gle/cbwuqjFgdoruU1416','_blank')">Apply for founding membership</button>
       <div class="sc-cta-note">Founding membership closes when the cohort is full. No artificial deadline.</div>
     </div>
 
@@ -1246,7 +1247,7 @@ async function initDash(){
   S.dash.logs[todayKey()]=S.dash.checked.length;
   renderDash();
   updateBellDot();
-  checkDueNotifications();
+  startNotifInterval();
 }
 function renderDash(){renderActsList();updateScores();renderWkChart();renderMoCal()}
 function renderActsList(){
@@ -1557,6 +1558,14 @@ function triggerInstallPrompt() {
 // ══════════════════════════════════════════════════════════════
 // NOTIFICATIONS
 // ══════════════════════════════════════════════════════════════
+let _notifInterval = null;
+
+const NOTIF_MESSAGES = [
+  { title: (n) => `Good morning, ${n || 'there'}.`, body: 'Your non-negotiables are waiting. How many will you complete today?' },
+  { title: ()  => 'Midday check-in.', body: 'How are your 11 activities looking? There is still time.' },
+  { title: ()  => 'Evening review.', body: 'Close the day strong. Lock in everything you can before midnight.' }
+];
+
 function loadNotifSettings() {
   try {
     return JSON.parse(localStorage.getItem('dos-notif') || 'null') || { enabled: false, times: ['07:00','12:00','20:00'] };
@@ -1572,7 +1581,6 @@ function openNotifPanel() {
     if (el) el.value = s.times[i] || ['07:00','12:00','20:00'][i];
   });
   onNotifToggle();
-  // Show PWA hint on iOS
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
   const hint = $$('notif-pwa-card');
@@ -1597,18 +1605,23 @@ async function saveNotifSettings() {
   const times = ['notif-t1','notif-t2','notif-t3'].map(id => $$(id)?.value || '07:00');
 
   if (en) {
-    if (!('Notification' in window)) { alert('Your browser does not support notifications.'); return; }
+    if (!('Notification' in window)) {
+      alert('Your browser does not support notifications.');
+      return;
+    }
     if (Notification.permission === 'default') {
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') {
         alert('Notification permission was not granted. Please enable it in your browser settings.');
         $$('notif-enabled').checked = false;
+        onNotifToggle();
         return;
       }
     }
     if (Notification.permission === 'denied') {
-      alert('Notifications are blocked. Please enable them in your device settings.');
+      alert('Notifications are blocked. Please enable them in your device or browser settings, then try again.');
       $$('notif-enabled').checked = false;
+      onNotifToggle();
       return;
     }
   }
@@ -1616,27 +1629,68 @@ async function saveNotifSettings() {
   localStorage.setItem('dos-notif', JSON.stringify({ enabled: en, times }));
   updateBellDot();
   closeNotifPanel();
-  if (en) checkDueNotifications();
+  startNotifInterval();
 }
 
 function updateBellDot() {
   const s = loadNotifSettings();
   const dot = $$('bell-dot');
-  if (dot) dot.classList.toggle('on', s.enabled);
+  if (dot) dot.classList.toggle('on', !!s.enabled);
 }
 
+// ── Show a notification directly (works while app is open) ──
+function fireNotification(idx) {
+  const name = S.profile?.name || '';
+  const msg = NOTIF_MESSAGES[idx];
+  if (!msg) return;
+  const title = msg.title(name);
+
+  // Try service worker notification first (works when app is backgrounded)
+  if (navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'SHOW_NOTIF', title, body: msg.body, tag: 'dos-' + idx
+    });
+  } else {
+    // Fallback: direct Notification API (only works when app is in foreground)
+    try { new Notification(title, { body: msg.body, icon: '/icon-192.png', tag: 'dos-' + idx }); }
+    catch(e) { console.warn('Notification failed', e); }
+  }
+}
+
+// ── Check every minute if a notification is due ──
 function checkDueNotifications() {
   const s = loadNotifSettings();
   if (!s.enabled || Notification.permission !== 'granted') return;
-  // Delegate to service worker for proper handling
-  if (navigator.serviceWorker?.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      type: 'CHECK_NOTIFS',
-      times: s.times,
-      todayKey: todayKey(),
-      userName: S.profile?.name || ''
-    });
-  }
+
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const nowMins = h * 60 + m;
+  const todayStr = todayKey();
+
+  s.times.forEach((t, i) => {
+    const [th, tm] = (t || '').split(':').map(Number);
+    if (isNaN(th) || isNaN(tm)) return;
+    const targetMins = th * 60 + tm;
+    // Fire if within a 1-minute window of the target time
+    if (nowMins === targetMins) {
+      const key = `dos-notif-shown-${todayStr}-${i}`;
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, '1');
+        fireNotification(i);
+      }
+    }
+  });
+}
+
+// ── Start polling every 60 seconds ──
+function startNotifInterval() {
+  if (_notifInterval) clearInterval(_notifInterval);
+  const s = loadNotifSettings();
+  if (!s.enabled) return;
+  // Check immediately in case we just opened the app near a reminder time
+  checkDueNotifications();
+  // Then check every 60 seconds while app is open
+  _notifInterval = setInterval(checkDueNotifications, 60 * 1000);
 }
 
 // ══════════════════════════════════════════════════════════════

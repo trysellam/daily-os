@@ -1085,7 +1085,7 @@ async function doSignIn(){
   if(S.profile?.onboarding_complete){S.ob.name=S.profile.name;await initDash();showScreen('dashboard')}
   else{S.ob.name=S.profile?.name||'';showScreen('onboarding');renderOb()}
 }
-async function doSignOut(){await sb.auth.signOut();S.user=null;S.profile=null;showScreen('landing')}
+async function doSignOut(){await sb.auth.signOut();S.user=null;S.profile=null;prgDataLoaded=false;if(_notifInterval){clearInterval(_notifInterval);_notifInterval=null;}showScreen('landing')}
 
 // ONBOARDING
 const QS=[
@@ -1226,8 +1226,8 @@ async function startDash(){await initDash();showScreen('dashboard')}
 
 // DB
 async function loadProfile(){if(!S.user)return null;const{data}=await sb.from('profiles').select('*').eq('id',S.user.id).single();return data}
-async function getTodayLog(){if(!S.user)return null;const{data}=await sb.from('daily_logs').select('*').eq('user_id',S.user.id).eq('log_date',todayKey()).maybeSingle();return data}
-async function saveTodayLog(c){if(!S.user)return;await sb.from('daily_logs').upsert({user_id:S.user.id,log_date:todayKey(),completed_activities:c,updated_at:new Date().toISOString()})}
+async function getTodayLog(){if(!S.user)return null;const{data,error}=await sb.from('daily_logs').select('*').eq('user_id',S.user.id).eq('log_date',todayKey()).order('updated_at',{ascending:false}).limit(1);return(data&&data.length>0)?data[0]:null}
+async function saveTodayLog(c){if(!S.user)return;await sb.from('daily_logs').upsert({user_id:S.user.id,log_date:todayKey(),completed_activities:c,updated_at:new Date().toISOString()},{onConflict:'user_id,log_date',ignoreDuplicates:false})}
 async function getLogs(dates){if(!S.user||!dates.length)return[];const{data}=await sb.from('daily_logs').select('*').eq('user_id',S.user.id).in('log_date',dates);return data||[]}
 
 // DASHBOARD
@@ -1259,12 +1259,18 @@ function renderActsList(){
     return`<div class="sh">${c.l}</div><div class="al" style="margin-bottom:20px">${acts.map(a=>{const ck=S.dash.checked.includes(a.id);return`<div class="ai${ck?' ck':''}" onclick="toggleAct(${a.id})"><div class="ci"><div class="ck-i"></div></div><div class="ai-lbl">${a.text}</div><span class="ap ${tg[a.tag]||''}">${a.tag}</span></div>`}).join('')}</div>`;
   }).join('');
 }
-async function toggleAct(id){
+let _saveTimer = null;
+function toggleAct(id){
   const idx=S.dash.checked.indexOf(id);
   if(idx>-1)S.dash.checked.splice(idx,1);else S.dash.checked.push(id);
   S.dash.logs[todayKey()]=S.dash.checked.length;
-  await saveTodayLog(S.dash.checked);
   renderActsList();updateScores();renderWkChart();renderMoCal();
+  // Debounce: wait 800ms after last tap before writing to Supabase
+  // This batches rapid taps into a single save and prevents race conditions
+  if(_saveTimer)clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(async()=>{
+    await saveTodayLog([...S.dash.checked]);
+  },800);
 }
 function updateScores(){
   const tot=S.dash.acts.length||11,tc=S.dash.checked.length,tp=Math.round((tc/tot)*100);
@@ -1671,8 +1677,9 @@ function checkDueNotifications() {
     const [th, tm] = (t || '').split(':').map(Number);
     if (isNaN(th) || isNaN(tm)) return;
     const targetMins = th * 60 + tm;
-    // Fire if within a 1-minute window of the target time
-    if (nowMins === targetMins) {
+    // Fire within a 2-minute window of target — handles setInterval drift
+    const diff = nowMins - targetMins;
+    if (diff >= 0 && diff <= 2) {
       const key = `dos-notif-shown-${todayStr}-${i}`;
       if (!localStorage.getItem(key)) {
         localStorage.setItem(key, '1');
